@@ -1,0 +1,49 @@
+<!-- M2 research (documents only — operator rule 2026-08-18). Produced by a researcher agent 2026-08-19;
+     topic T8 of the M2 research brief; sources opened directly by the agent (curl), quotes verified by it;
+     includes one empirical Node test run on this machine. No code change before checkpoint 2. -->
+
+# T8 — journal-rotation (FL-037)
+
+## 1. The problem as it exists in this repo
+
+Two diagnostic files grow forever with nothing to cap or clean them up. Every time a chat session closes, one line (roughly 100 bytes: timestamp, session id, close reason, digest status, drain status) is appended to `<repoRoot>/.zer0/journal/room-close.log`. This happens in `recordClose()` in `src/room/attached-session-lifecycle.ts:197-212`, the actual write is `await appendFile(path.join(directory, CLOSE_LOG_FILE), line, "utf8")` at line 208. Separately, only when the memory ledger database itself has failed, one line is appended to `.zer0/journal/digest-failures.log` — `fallbackLog()` in `src/memory/digest-failsafe.ts:152-164`, the write is `appendFileSync(path.join(dir, "digest-failures.log"), ..., "utf8")` at lines 156-160. Neither file is ever truncated, size-checked, or rotated. This is exactly what FINDINGS row FL-037 (`docs/FINDINGS.md`) records: "`room-close.log` has no rotation (~100 B per close)," status "RECORDED → Phase 7 guard / M2," with the note that the Phase 7 public-tree guard's job is only to confirm the folder stays git-ignored — rotation itself is separate, M2 work.
+
+## 2. Prior art
+
+**logrotate** (the standard Linux system utility). It's a cron/systemd-timer-driven external process, not a library — it rotates any log file per a config it owns, independent of whatever wrote the log. Quote: "`rotate count` — Log files are rotated count times before being removed... Default is 0" and "`size size` — Log files are rotated only if they grow bigger than size bytes" (`https://raw.githubusercontent.com/logrotate/logrotate/main/logrotate.8.in`, lines 237-242, 311-319 — fetched directly, read in full). It also documents its own data-loss window in `copytruncate` mode: "there is a very small time slice between copying the file and truncating it, so some logging data might be lost" (same file, lines 470-471). Evidence class: primary source (the tool's own manual), label: verified. Important caveat for this project: logrotate's own page header says "Linux — System Administrator's Manual" — it is a POSIX system tool, not an npm package, and does not exist on Windows, which is where this repo runs.
+
+**rotating-file-stream** (npm, `iccicci/rotating-file-stream`, MIT). A Node stream that rotates by size and/or time interval; with `options.rotate` it emulates classic logrotate's numbered-rename behavior. Quote: `"size: '300B', // rotates the file when size exceeds 300 Bytes // useful for tests"` and `"maxFiles ... the maximum number of rotated files to be kept"` (`https://raw.githubusercontent.com/iccicci/rotating-file-stream/master/README.md`, lines 358-365, 510-513). The agent read its actual rotation source, not just the README: before any rename it explicitly closes its own held file handle first — `private async reclose(): Promise<void> { ...; return file.close(); }`, called from `rotate()` before the rename step — then renames with `await rename(this.filename, filename)`, catching only `ENOENT` to recreate a missing destination directory; there is no explicit `EBUSY`/`EPERM` handling in the source (`https://raw.githubusercontent.com/iccicci/rotating-file-stream/master/index.ts`, lines 294-321, 335-345, 373-385). Evidence class: primary source (actual implementation), label: verified. This library holds a persistent write stream open between writes — a different situation from this repo's code, which never does (see recommendation).
+
+**pino-roll** (npm, `mcollina/pino-roll`, official Pino transport) and **winston-daily-rotate-file** (npm, `winstonjs/winston-daily-rotate-file`). Both sidestep the rename-while-open question entirely: they never rename the active file. They always open a new, distinctly-named file at each rotation boundary and delete old ones once a limit is passed. pino-roll: "A rotation number will be appended to this filename... e.g., prod.2025-08-19.1.log," culled by `limit.count` (`https://raw.githubusercontent.com/mcollina/pino-roll/main/README.md`, lines 106-173). winston-daily-rotate-file: filenames carry a `%DATE%` placeholder, culled by `maxFiles`, tracked in an on-disk "audit file" (`https://raw.githubusercontent.com/winstonjs/winston-daily-rotate-file/master/README.md`, lines 29, 33). Evidence class: primary source (official README), label: verified for the documented option semantics; the "never renames" characterization is inferred from the absence of any rename step in either's documented behavior (source not read), so that specific sub-claim is labeled inferred, not verified.
+
+## 3. Options for m0irai M2
+
+- **A — no new dependency: check size before each append, rename-shift N generations.** One small helper before each `appendFile`/`appendFileSync` call: if the target is at or above a threshold, shift `.1`→`.2` (etc.) and rename the active file to `.1`, then continue. Zero dependency cost, small and fully testable with a temp directory. The trade-off is that this repo, not a maintained library, now owns the correctness of the generation-shift.
+- **B — adopt rotating-file-stream.** Gets mature size/interval/maxFiles logic, but it's built around holding a long-lived writable stream open — both call sites in this repo are deliberately one-shot, fire-and-forget appends (`digest-failsafe.ts`'s own doc comment: "Never writes stdout/stderr (O2); never throws"). Adopting it means restructuring both sites to own and flush/close a persistent stream, a materially bigger change for two ~100-byte diagnostic writes.
+- **C — adopt pino-roll or winston-daily-rotate-file.** Both assume the caller is already speaking their logging framework's protocol (Pino or Winston). Pulling in a full structured-logging library to rotate two plain text append targets is a large dependency for a small problem.
+- **D — defer past M2.** Zero effort now, but leaves a known, already-recorded defect (FL-037) with no falsifier — the kind of open-ended risk the project's own ratchet discipline exists to close, not extend.
+
+## 4. Recommendation
+
+**Option A.** It's the only option that matches the write pattern already in this code: bare `appendFile`/`appendFileSync` called with a filename (string path), never a held file descriptor. This matters, and was tested on this machine (Node v24.18.0, Windows) rather than assumed: several `appendFileSync` calls against a file exactly the way `recordClose()` does, then `renameSync` on it mid-stream with no handle held, then `appendFileSync` again at the original path. Result: the rename succeeded with no error, and the next append transparently recreated the file — no `EBUSY`, no `EPERM`. That matches Node's own documented contract: the file-descriptor overload of `appendFile` is the one where "the file descriptor will not be closed automatically" (`https://raw.githubusercontent.com/nodejs/node/main/doc/api/fs.md`, lines 2639-2640) — but this repo never uses that overload; the string-path form opens, writes, and closes on every single call, which is exactly why nothing is ever "open" for a rename to collide with.
+
+Falsifier: add the size check ahead of both call sites, set the trigger low in a test (300 bytes — literally rotating-file-stream's own documented testing convention), drive several close/failure events past the threshold, and assert (1) prior content survives under a `.1` suffix, (2) the active file re-accumulates from empty, (3) nothing throws. If any of those three fail, the option is wrong, not just a particular implementation of it.
+
+## 5. What could not be verified
+
+- Whether a Phase 7 "public-tree guard" script already exists and what exactly it checks. Search: `grep -rn "public.tree|publicTree" D:\m0irai-work` → no matches; no guard script found under `scripts/`. UNVERIFIED — the guard isn't written yet. What can be reported instead: `.gitignore:16` has `.zer0/*`, and none of its `!` exceptions touch `journal/` — so any rotated file already stays out of the tracked tree today, as long as rotation keeps writing inside `.zer0/journal/`.
+- Whether rotating-file-stream's lack of explicit `EBUSY`/`EPERM` handling has ever caused a filed Windows issue in its tracker. Not searched — out of scope, and not load-bearing since Option A doesn't use this library.
+- Confirmed absent: any existing rotation logic or dependency already in this repo. `grep -rn "rotat|logrotate|maxFiles" src` → 9 files, all unrelated (PTY session "rotation," a test file named "schema-generations"); `grep -n "rotating-file-stream|pino-roll|winston" package.json` → no output.
+
+## 6. Sources
+
+- https://raw.githubusercontent.com/logrotate/logrotate/main/logrotate.8.in
+- https://raw.githubusercontent.com/iccicci/rotating-file-stream/master/README.md
+- https://raw.githubusercontent.com/iccicci/rotating-file-stream/master/index.ts
+- https://raw.githubusercontent.com/mcollina/pino-roll/main/README.md
+- https://raw.githubusercontent.com/winstonjs/winston-daily-rotate-file/master/README.md
+- https://raw.githubusercontent.com/nodejs/node/main/doc/api/fs.md
+- https://registry.npmjs.org/rotating-file-stream/latest
+- https://registry.npmjs.org/pino-roll/latest
+- In-repo: src/room/attached-session-lifecycle.ts (lines 59-61, 192-217), src/memory/digest-failsafe.ts (lines 79-164), docs/FINDINGS.md (FL-037), .gitignore (lines 16-21), package.json
+- Empirical: a Node script run on this machine (v24.18.0, Windows) replicating the repo's exact `appendFileSync` pattern across a `renameSync` mid-stream — output: rename OK, no EBUSY/EPERM, post-rotate append recreated the file correctly.

@@ -1,0 +1,4 @@
+# Files that use biome-ignore format directives for compact single-line type/proxy declarations.
+# Prettier does not recognize biome-ignore comments and would expand them, blowing past the
+# 600-line clamp. Workflow code stays in one file for replay determinism (see ARCHITECTURE-buildPacketWorkflow.md).
+src/temporal/workflows/build-packet.ts

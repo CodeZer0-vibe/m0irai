@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>m0irai plan v4 — senior review (Fable, 2026-08-17)</title>
+<style>
+:root{--bg:#0f0e14;--card:#17151f;--ink:#e8e6f0;--mut:#9a95ad;--green:#39ff14;--vio:#b48cff;--red:#ff5c5c;--amb:#ffb84d;--line:#2a2736}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,Segoe UI,sans-serif;max-width:980px;margin:0 auto;padding:28px 22px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:17px;margin:28px 0 8px;color:var(--vio)}
+.sub{color:var(--mut);margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:999px;margin-right:8px;vertical-align:middle}
+.p0{background:var(--red);color:#000}.p1{background:var(--amb);color:#000}.p2{background:#4c4a5c;color:#fff}.ok{background:var(--green);color:#000}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
+code{background:#0a0910;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:13px;color:#d9d4ff}
+pre{background:#0a0910;border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:12.5px}
+.verdict{border-left:4px solid var(--vio)}
+button{background:var(--vio);color:#000;border:0;border-radius:6px;padding:7px 12px;font-weight:700;cursor:pointer;float:right}
+.q{border-left:4px solid var(--green)}
+</style></head><body>
+<button onclick="navigator.clipboard.writeText(document.getElementById('md').textContent)">copy as Markdown</button>
+<h1>m0irai standalone plan v4 — senior review</h1>
+<div class="sub">Reviewer: Fable 5 (this session) · Author of v4: codex (room turn on v3 → v4) · File: <code>docs/specs/2026-08-17-m0irai-standalone-plan-v4.md</code> (332 lines, uncommitted) · Every claim below was checked against the tree today.</div>
+
+<div class="card verdict"><b>Verdict: adopt v4's four structural fixes — they are correct and verified. Do not execute v4 as written:</b> it targets a Node version the operator's machine does not run (P0), it folds a hardening program into the clean-up so "done" moves out of reach (scope), it forbids any backup of the cutting work (P1), and it fixes the Rust package count as a target instead of a measurement (P1). Fix those in a short v5 delta, then go.</div>
+
+<h2>What v4 got right (verified, adopt)</h2>
+<table>
+<tr><th>v4 claim</th><th>What I checked</th><th>Result</th></tr>
+<tr><td>v3's fresh-git-of-the-full-clone would carry private material into history</td><td><code>git ls-tree -r 106d5ea | grep '^(\.council|codex review)/'</code></td><td><span class="tag ok">CONFIRMED</span> <b>410 tracked files</b> under <code>.council/</code> and <code>codex review/</code> in the Node pin. WORK (disposable) → one-commit FINAL is the right fix. v3 was wrong here.</td></tr>
+<tr><td>First checkpoint impossible: pin tracks a <code>.zer0/</code> fixture</td><td><code>git ls-tree -r 106d5ea | grep '^\.zer0/'</code></td><td><span class="tag ok">CONFIRMED</span> <code>.zer0/workflows/adversarial-locked-override.md</code> is tracked; v3's "nothing under .zer0 staged" rule would break its test.</td></tr>
+<tr><td>Oracle arrives after the cuts that need it; ship-gate fails open until then</td><td>v3 §3 order (oracle = step 6)</td><td><span class="tag ok">CONFIRMED</span> Oracle-before-first-commit + gates build-then-oracle is correct.</td></tr>
+<tr><td>Provider deleted before consumer (tui before cli)</td><td><code>src/cli/commands/chat-tui.ts</code> imports <code>src/tui</code></td><td><span class="tag ok">CONFIRMED</span> One reverse-dependency closure per commit with a cut guard is correct.</td></tr>
+<tr><td>6 direct <code>estimateTokens</code> importers, 4 in the compiler closure</td><td>grep import lines + closure-181-repo.txt</td><td><span class="tag ok">CONFIRMED</span> commands, evidence, evidence-strict, headless-turn IN; run-debate-persistence, synthesize-trigger OUT.</td></tr>
+<tr><td>Rust: prune 23 not 24 (retain <code>ptyctl</code>); toolchain 1.94.0; <code>zer0-v2-bin</code> default = grok-pager-room; <code>quarantined-local-ui</code> + <code>src/ui/</code>; async-openai patch; bin name <code>zer0-v2</code></td><td>Cargo.toml files, rust-toolchain.toml, JUDGE A6</td><td><span class="tag ok">CONFIRMED</span> all six.</td></tr>
+<tr><td>Protocol subtree at outer 1680373 = <code>b13faf2c…</code>, clean</td><td><code>git rev-parse 1680373:protocol</code> + status</td><td><span class="tag ok">CONFIRMED</span></td></tr>
+<tr><td>Outer workspace tracks <code>.zer0/</code> runtime blobs (clone-not-copy is necessary)</td><td><code>git ls-files | grep ^\.zer0/</code></td><td><span class="tag ok">CONFIRMED</span></td></tr>
+<tr><td>Digest attaches on <code>session/new</code> AND <code>session/load</code>; boot catch-up excludes the attached session</td><td>reasoning vs v3 §5</td><td><span class="tag ok">Better than v3</span> — adopt.</td></tr>
+<tr><td>Room review really happened; Gemini reply truncated</td><td><code>.council/runs/chat-1786944494112-…/responses/turn-0001-gemini.md</code></td><td><span class="tag ok">CONFIRMED</span> literal <code>&lt;truncated 1620 bytes&gt;</code> in the persisted reply — <b>side finding: a V2 product defect</b> (persistence truncates agent replies); ticket for the new repo, not this plan.</td></tr>
+</table>
+
+<h2>Findings</h2>
+
+<div class="card"><span class="tag p0">P0</span><b>A · Node 22-only breaks the operator's own machine.</b><br>
+v4 §2 non-goals: "The first release targets Node 22 only"; Phase 6.1 narrows engines to <code>&gt;=22.17.0 &lt;23</code> and adds a launcher check that "rejects a mismatched Node major/ABI". Facts: the Rust room resolves <code>node.exe</code> from PATH (<code>host_process.rs:1063</code>); the PATH Node on this machine is <b>v24.18.0</b>; the current <code>package.json</code> engines already allow <code>&gt;=24.2.0</code>; the room runs on 24 today. Under v4 the finished m0irai would refuse to start here.<br>
+<b>Fix:</b> the proven runtime is the one the operator runs — Node 24.x — with the engines range kept as-is; the release records the Node major/ABI it was built with and the launcher <i>warns</i> on mismatch (a hard reject on a range that already works is a ratchet in the wrong direction). CI may add 22 later.</div>
+
+<div class="card"><span class="tag p1">P1 · scope</span><b>B · v4 folds a hardening program into the clean-up.</b><br>
+New surface not required to make the folder clean and running: hostile-session-ID grammar + symlink/junction containment matrix (2.4), atomic transcript writes (2.5), an app-wide ACP/PTY/ConPTY process registry with hung/cold-child fixtures (5.6–5.7), an exactly-once close state machine (5.3), launcher ABI reject (6.1), clean-Windows-VM proof (6.5), license disposition (6.3), acceptance schema (6.4), both-OS Rust CI. These are real findings — most are latent V2 defects that exist today, unchanged by the extraction — but two things follow from bundling them: (1) "done" is held hostage to a program of unknown length; (2) 2.4/2.5 land <i>before the first commit</i>, so commit 1 is no longer a pristine import + proof harness — the provenance diff gets muddy.<br>
+<b>Fix:</b> two milestones. <b>M1 — standalone runs:</b> import, cuts, digest wiring, the PTY-drain relocation the cli cut <i>forces</i>, oracle, release script, fresh-clone proof on this machine, private repo. <b>M2 — public-ready:</b> everything above plus README/licenses, then the hardening items as their own spec'd wave. v4's Phase 2.4/2.5 and 5.6–5.7 move to M2. The operator gets to run m0irai daily at M1.</div>
+
+<div class="card"><span class="tag p1">P1</span><b>C · "WORK history is never pushed" = zero off-machine backup during days of cutting.</b><br>
+Invariant 10 and Phase 1 forbid any remote for WORK. This session has already lost work to a power outage and to usage cut-offs. The invariant that matters is <i>WORK never becomes FINAL history / never goes public</i>. <b>Fix:</b> push WORK to a private scratch remote (<code>CodeZer0-vibe/m0irai-work</code>), deleted after FINAL is accepted.</div>
+
+<div class="card"><span class="tag p1">P1</span><b>D · "exactly 20 Rust packages" is a target where it should be a measurement.</b><br>
+Phase 4.1 prunes all 4 pager dev declarations (<code>xai-grok-pager-pty-harness</code>, <code>xai-grok-test-support</code>, +agent/shell) to land on 20 — but the JUDGE already measured that the pty-harness "backs 16–21 test files" and recommended, under approach B, simply keeping <code>ptyctl</code>, the harness and test-support. Cutting those tests to hit a round number is a quality cut. Also: flipping the pager's <code>default</code> to <code>[]</code> changes what <code>cargo test --workspace</code> compiles — some tests behind <code>grok-runtime</code> may stop building; that is a Phase 4 measurement, not a plan-time fact.<br>
+<b>Fix:</b> prune the 19 optional product edges (16 pager + 3 pager-render); keep every dev edge whose tests still compile under the retained features; the package count is whatever falls out (likely 22) and is pinned <i>after</i> measurement.</div>
+
+<div class="card"><span class="tag p2">note</span><b>E · v4 has been reviewed only by its author.</b> §1 ends: "A bounded independent re-check of the corrected v4 found no unresolved P0/P1" — that re-check was codex on codex. This page is the first outside read. Given A–D, I would not re-run the six-reviewer machine; a v5 delta is small and every structural claim is now checked against the tree.</div>
+
+<div class="card"><span class="tag p2">note</span><b>F · Premature supersede.</b> Codex already edited v3's header to "superseded — do not execute" before anyone accepted v4 (uncommitted). Harmless; hold the commit until v5.</div>
+
+<div class="card"><span class="tag p2">note</span><b>G · <code>ZER0_HERMETIC=1</code></b> is a new production switch (disables provider acquisition for the oracle). Acceptable minimal seam; must be documented next to <code>ZER0_DIGEST_FAKE</code> and guarded the same way so it cannot leak into a real run.</div>
+
+<h2 class="q">Recommendation</h2>
+<div class="card q">Write <b>v5 = v4 minus A, C, D, plus the M1/M2 split (B)</b>. Then go from Phase 0. The only decision that is the operator's: <b>the M1/M2 split</b> — i.e. is "m0irai runs clean from D:\m0irai, private repo, digest wired" the finish line for this job (my recommendation), with the hardening wave spec'd separately afterwards? Or does the extraction stay unfinished until the hardening items and a clean-VM proof are done too (v4 as written)?</div>
+
+<pre id="md" style="display:none"># m0irai plan v4 — senior review (Fable, 2026-08-17)
+
+Verdict: adopt v4's four structural fixes (WORK/FINAL split, oracle before first commit, consumer-before-provider closure per commit, fixture relocation) — verified. Do not execute as written.
+
+Verified correct: 410 tracked files under .council/ + codex review/ in Node pin (history would leak); .zer0/workflows fixture tracked; 6 estimateTokens importers / 4 in closure; Rust prune 23 w/ ptyctl retained, toolchain 1.94.0, features, bin name, async-openai patch; protocol subtree b13faf2c clean; outer repo tracks .zer0 blobs; digest attach on new+load better than v3; room run real, Gemini reply truncated (V2 product defect, side ticket).
+
+A (P0): Node 22-only breaks operator's machine — Rust resolves node.exe from PATH (host_process.rs:1063), PATH Node = v24.18.0, engines already allow >=24.2.0, room runs on 24 today. Fix: prove on Node 24, keep engines, warn-not-reject on ABI mismatch.
+B (P1 scope): hardening program folded into clean-up (2.4, 2.5, 5.3, 5.6-5.7, 6.1 ABI reject, 6.3, 6.4, 6.5 VM). Fix: M1 = standalone runs (import, cuts, digest, forced PTY-drain move, oracle, release, fresh-clone proof, private repo); M2 = public-ready + hardening wave with own spec.
+C (P1): WORK never pushed = no backup during days of cutting. Fix: private scratch remote CodeZer0-vibe/m0irai-work, deleted after FINAL accepted.
+D (P1): "exactly 20 Rust packages" is a target not a measurement; JUDGE said keep ptyctl + pty-harness + test-support (harness backs 16-21 tests). Fix: prune 19 optional product edges, keep dev edges whose tests compile, pin count after measurement.
+E: v4 reviewed only by its author. F: v3 marked superseded prematurely (uncommitted). G: ZER0_HERMETIC=1 new prod switch — document/guard like ZER0_DIGEST_FAKE.
+
+Recommendation: v5 = v4 − A,C,D + M1/M2 split; then go from Phase 0. Operator decision: is M1 the finish line for this job (recommended)?</pre>
+</body></html>

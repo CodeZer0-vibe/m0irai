@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "isolatedDeclarations": false
+  },
+  "include": ["src/room/zer0-v2-host.ts", "src/memory/digest-entry.ts"],
+  "exclude": ["node_modules", "dist", "tests/**/*", "src/**/*.test.ts", ".zer0", ".council/logs"]
+}

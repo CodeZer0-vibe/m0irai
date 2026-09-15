@@ -1,0 +1,78 @@
+[package]
+name = "zer0-v2-bin"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "Zer0 V2 room protocol composition root"
+
+[features]
+default = ["grok-pager-room"]
+test-support = []
+grok-pager-room = ["dep:xai-grok-pager", "xai-grok-pager/room-runtime"]
+# Test-only terminal fixture. It exercises the exact pager room loop without
+# starting the production Node host and is never part of the default CLI.
+room-visual-fixture = ["grok-pager-room", "xai-grok-pager/room-test-support"]
+# Demo-only: `m0irai --welcome-demo` plays the empty-room welcome card's
+# entrance in a real terminal with no Node host and no agents, so the boot
+# branding can be judged before it ships. Compiled OUT of release-dist: the
+# default feature closure below does not name it.
+welcome-demo = ["grok-pager-room", "xai-grok-pager/welcome-demo"]
+
+[[bin]]
+name = "m0irai"
+path = "src/main.rs"
+
+# The two `#![cfg(feature = "test-support")]` targets, declared so that cargo
+# REFUSES them instead of running them empty.
+#
+# Without `required-features`, `cargo test --test host_lifecycle` builds the
+# whole file away, reports `test result: ok. 0 passed; 0 failed` and exits 0 — a
+# pass that proves nothing. That has now been reported twice: `boot-review-r4`
+# found it first and the H-0 review brief was written afterwards and still
+# carried the feature-less command, so ten runs of it "passed" without executing
+# a single test. With this, the same command fails by name ("requires the
+# features: `test-support`") and `--workspace`, which cannot enable the feature,
+# SKIPS the target rather than counting a zero. Cargo's own mechanism, not a
+# grep over its output: nothing left to remember.
+#
+# `npm run verify:rust` still runs both, with `--features test-support`, and its
+# `countedTest` guard stays — that one catches the OTHER half of this defect
+# class, a filter that has stopped matching.
+[[test]]
+name = "host_lifecycle"
+required-features = ["test-support"]
+
+[[test]]
+name = "digest_handoff"
+required-features = ["test-support"]
+
+[dependencies]
+anstyle = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+futures-util = { workspace = true }
+semver = { workspace = true }
+which = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "process", "rt", "sync", "time"] }
+tokio-util = { workspace = true, features = ["codec"] }
+xai-grok-pager = { path = "../codegen/xai-grok-pager", default-features = false, optional = true }
+tracing = { workspace = true }
+xai-tty-utils = { path = "../codegen/xai-tty-utils" }
+zer0-room-protocol = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = ["Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects", "Win32_System_Console"] }
+
+[dev-dependencies]
+portable-pty = { workspace = true }
+# FL-126: the bridge tests build a RoomCommand::Submit, which needs a
+# SubmissionId. Its only test-side constructor is compiled out unless
+# room-test-support is on, so "a submit always has a held prompt behind it" is
+# a property of the shipping build rather than a comment asking nicely.
+xai-grok-pager = { path = "../codegen/xai-grok-pager", default-features = false, features = ["room-test-support"] }
+ptyctl = { path = "../codegen/ptyctl" }
+tempfile = { workspace = true }
+
+[lints]
+workspace = true

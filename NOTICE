@@ -1,0 +1,15 @@
+m0irai — three threads, one process.
+
+This repository combines two independently licensed bodies of work. Each keeps
+its own licence text and attribution; nothing here is relicensed.
+
+  * Node room host and backend (repository root, `src/`, `scripts/`, `tests/`,
+    `protocol/`): MIT — Copyright (c) 2026 CodeZero. See `LICENSE`.
+  * Rust terminal room (`rust/`): a fork of xai-org/grok-build, Apache-2.0 —
+    Copyright 2023-2026 SpaceXAI. See `rust/LICENSE` and
+    `rust/THIRD-PARTY-NOTICES`. Third-party crates vendored under
+    `rust/third_party/` carry their own licences in place.
+
+Provenance of every imported input (commit ids, tree ids, archive commands,
+licence hashes) is recorded in `docs/provenance/manifest.json`; every path
+removed during extraction is recorded in `docs/provenance/deletions.json`.

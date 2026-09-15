@@ -1,0 +1,67 @@
+{
+  "name": "m0irai",
+  "version": "0.0.1",
+  "private": true,
+  "description": "m0irai — a terminal room that runs Claude, Codex, and Gemini (Antigravity) as one team of coding agents: persistent agent sessions, mechanical quality gates, and a SQLite evidence ledger.",
+  "license": "MIT",
+  "author": "CodeZero",
+  "type": "module",
+  "zer0Patches": ["@agentclientprotocol+claude-agent-acp+0.75.1.patch"],
+  "engines": {
+    "node": ">=22.17.0 <23 || >=24.2.0"
+  },
+  "scripts": {
+    "postinstall": "node scripts/patch-lifecycle.mjs install",
+    "build": "node scripts/clean-dist.mjs && tsc -p tsconfig.production.json && node scripts/copy-evidence-schema.mjs",
+    "build:all": "node scripts/clean-dist.mjs && tsc -p tsconfig.json && node scripts/copy-evidence-schema.mjs",
+    "build:production": "npm run build",
+    "package:zer0-v2-sidecar": "node scripts/package-zer0-v2-sidecar.mjs",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.config.integration.ts",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check . && node scripts/gate-agent-files.mjs && node scripts/gate-clamps.mjs && node scripts/gate-encoding.mjs && node scripts/gate-no-claude-p.mjs && node scripts/gate-patches.mjs && node scripts/gate-scripts-scope.mjs && node scripts/gate-hermetic-seams.mjs",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "dep-check": "depcruise --config .dependency-cruiser.cjs src tests",
+    "dead-code": "knip",
+    "dead-code:fix": "knip --fix",
+    "gate-l5": "node scripts/gate-l5-mandates.mjs",
+    "gates": "npm run build && npm run typecheck && npx biome check . && node scripts/gate-agent-files.mjs && node scripts/gate-clamps.mjs && node scripts/gate-encoding.mjs && node scripts/gate-no-claude-p.mjs && node scripts/gate-patches.mjs && node scripts/gate-scripts-scope.mjs && node scripts/gate-hermetic-seams.mjs && node scripts/gate-l5-mandates.mjs && npm run dep-check && npm run dead-code && node scripts/gate-cut-closure.mjs && node scripts/gate-tracked-surface.mjs && node scripts/gate-oracle-registration.mjs && node scripts/gate-reachability.mjs && npm test && npm run test:integration && node scripts/oracle-standalone.mjs && node scripts/oracle-standalone.mjs --falsify schema && node scripts/oracle-standalone.mjs --falsify digest-entry && node scripts/gate-reachability.mjs --falsify",
+    "test:live": "vitest run --config vitest.config.live.ts",
+    "verify:rust": "node scripts/verify-rust.mjs",
+    "verify": "npm run gates && npm run verify:rust",
+    "verify:staged": "node scripts/verify-staged.mjs",
+    "ship:gate": "node scripts/ship-gate.mjs",
+    "oracle": "node scripts/oracle-standalone.mjs",
+    "audit:prod": "npm audit --omit=dev --ignore-scripts",
+    "bridges:check": "node scripts/bridges-check.mjs"
+  },
+  "dependencies": {
+    "@agentclientprotocol/claude-agent-acp": "0.75.1",
+    "@agentclientprotocol/codex-acp": "1.10.0",
+    "@agentclientprotocol/sdk": "1.4.0",
+    "@openai/codex": "0.153.4",
+    "better-sqlite3": "^12.10.0",
+    "execa": "^9.0.0",
+    "figures": "^6.0.0",
+    "node-pty": "^1.1.0",
+    "patch-package": "8.0.1",
+    "ulid": "^3.0.2",
+    "yoctocolors": "^2.0.0",
+    "zod": "^3.23.0"
+  },
+  "overrides": {
+    "@openai/codex": "$@openai/codex"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^22.0.0",
+    "dependency-cruiser": "^17.4.0",
+    "knip": "^6.11.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

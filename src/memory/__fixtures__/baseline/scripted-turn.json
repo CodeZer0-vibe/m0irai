@@ -1,0 +1,65 @@
+{
+  "projectId": "proj-baseline",
+  "runId": "run-baseline",
+  "sessionId": "chat-baseline",
+  "fixedTimestamp": "2026-07-04T00:00:00.000Z",
+  "transcript": [
+    {
+      "id": "msg-1-user",
+      "turn": 1,
+      "role": "user",
+      "agent": "user",
+      "status": "completed",
+      "tokenEstimate": 12
+    },
+    {
+      "id": "msg-1-claude",
+      "turn": 1,
+      "role": "agent",
+      "agent": "claude",
+      "status": "completed",
+      "tokenEstimate": 18
+    },
+    {
+      "id": "msg-2-user",
+      "turn": 2,
+      "role": "user",
+      "agent": "user",
+      "status": "completed",
+      "tokenEstimate": 14
+    }
+  ],
+  "task": {
+    "id": "task-baseline",
+    "runId": "run-baseline",
+    "objective": "scaffold evidence schema",
+    "agent": "claude"
+  },
+  "dispatches": [
+    {
+      "id": "dispatch-claude",
+      "agent": "claude",
+      "argv": [
+        "claude",
+        "--setting-sources",
+        "",
+        "--permission-mode",
+        "acceptEdits"
+      ],
+      "cwd": "/baseline/repo",
+      "envAllowlistVersion": "v1"
+    },
+    {
+      "id": "dispatch-codex",
+      "agent": "codex",
+      "argv": [
+        "codex",
+        "exec",
+        "--sandbox",
+        "read-only"
+      ],
+      "cwd": "/baseline/repo",
+      "envAllowlistVersion": "v1"
+    }
+  ]
+}

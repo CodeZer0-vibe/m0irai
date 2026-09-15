@@ -1,0 +1,88 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Runtime evidence (NEVER commit blobs/db — they contain prompts and outputs)
+.zer0/*
+!.zer0/.gitkeep
+!.zer0/workflows/
+!.zer0/workflows/*.md
+!.zer0/agents/
+!.zer0/agents/*.appendix.md
+
+# Council logs (transient)
+.council/logs/
+.council/.tool-sequence.log
+.council/.grounding-*
+
+# Chat + council session runtime (transcripts, prompts, responses, blobs)
+.council/runs/
+
+# Runtime dispatch log (append-only, regenerated)
+.council/cross-model/dispatch-log.jsonl
+
+# Worktrees (per spec — created per build dispatch)
+.agent-ci/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Test
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+Thumbs.db
+desktop.ini
+
+# chat REPL writes a session handoff on exit — runtime artifact, not source
+HANDOFF-CHAT.md
+
+# Spikes — early architecture experiments (proven; superseded by src/). Kept locally, not shipped.
+spike/
+
+# Local agent/session runtime artifacts (regenerated per run — never part of the shipped product)
+.agents/
+run.ndjson
+claude-completed.md
+claude-task-output.txt
+# A literal "%SystemDrive%" folder from a Windows env-var that failed to expand in a script — junk.
+%SystemDrive%/
+
+# Council session artifacts (autobuild briefs, cross-model reviews, research, per-task reports) — transient
+.council/autobuild/
+.council/cross-model/
+.council/research/
+.council/*.json
+.council/review-*.md
+
+# runtime artifacts (session-local, never committed)
+.council/control-card-conpty/
+.council/debug/
+.council/s2-compiled/
+.council/tmp/
+
+# m0irai: Rust build output lives inside the repo tree
+/rust/target/
+/.verify-logs/
+
+# lane scratch: builders and reviewers keep their working files under .tmp-<lane>/ and leave them; the lead removes them with the worktree
+.tmp-*/

@@ -1,0 +1,88 @@
+{
+  "path": "scripts/oracle-standalone.mjs",
+  "sha256": "f3ec5cb76677d46eba981ddfa501308c78e6a0483e7029308a6b779b18267c23",
+  "modes": [
+    "hermetic",
+    "release"
+  ],
+  "command": "node scripts/oracle-standalone.mjs [--mode hermetic|release] [--launcher <staged zer0-v2-host.mjs>] [--falsify schema|digest-entry]",
+  "proofs": [
+    "1.initialize",
+    "1.session/list-contains-created",
+    "1.session/new",
+    "2.canonical-project-identity",
+    "2.chat_sessions-row",
+    "3.schema-set",
+    "4.digest-close-fact-and-watermark",
+    "4b.replay-changes-nothing",
+    "5.empty-extraction-watermark-only",
+    "6.session/load-continue",
+    "7.explicit-shutdown-exit0",
+    "7.stdin-eof-exit0",
+    "7b.explicit-shutdown-closes-once",
+    "7b.stdin-eof-closes-once",
+    "8.wrong-cwd-invalid-params",
+    "9.no-writes-outside-temp-root",
+    "A6.digest-entry-falsifier(must-fail)",
+    "BOOT.hermetic-probe-no-spawn",
+    "F.schema-falsifier(must-fail)",
+    "H.hermetic-refusal",
+    "R.run-matches-registration"
+  ],
+  "hermeticOnlyProofs": [
+    "4.digest-close-fact-and-watermark",
+    "4b.replay-changes-nothing",
+    "5.empty-extraction-watermark-only",
+    "7b.explicit-shutdown-closes-once",
+    "7b.stdin-eof-closes-once",
+    "BOOT.hermetic-probe-no-spawn",
+    "H.hermetic-refusal"
+  ],
+  "runProofs": {
+    "hermetic": [
+      "1.initialize",
+      "1.session/list-contains-created",
+      "1.session/new",
+      "2.canonical-project-identity",
+      "2.chat_sessions-row",
+      "3.schema-set",
+      "4.digest-close-fact-and-watermark",
+      "4b.replay-changes-nothing",
+      "5.empty-extraction-watermark-only",
+      "6.session/load-continue",
+      "7.explicit-shutdown-exit0",
+      "7.stdin-eof-exit0",
+      "7b.explicit-shutdown-closes-once",
+      "7b.stdin-eof-closes-once",
+      "8.wrong-cwd-invalid-params",
+      "9.no-writes-outside-temp-root",
+      "BOOT.hermetic-probe-no-spawn",
+      "H.hermetic-refusal",
+      "R.run-matches-registration"
+    ],
+    "release": [
+      "1.initialize",
+      "1.session/list-contains-created",
+      "1.session/new",
+      "2.canonical-project-identity",
+      "2.chat_sessions-row",
+      "3.schema-set",
+      "6.session/load-continue",
+      "7.explicit-shutdown-exit0",
+      "7.stdin-eof-exit0",
+      "8.wrong-cwd-invalid-params",
+      "9.no-writes-outside-temp-root",
+      "R.run-matches-registration"
+    ],
+    "falsify:schema": [
+      "9.no-writes-outside-temp-root",
+      "F.schema-falsifier(must-fail)",
+      "R.run-matches-registration"
+    ],
+    "falsify:digest-entry": [
+      "9.no-writes-outside-temp-root",
+      "A6.digest-entry-falsifier(must-fail)",
+      "R.run-matches-registration"
+    ]
+  }
+}

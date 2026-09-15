@@ -1,0 +1,500 @@
+diff --git a/node_modules/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js b/node_modules/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js
+index b6069d3..14267dd 100644
+--- a/node_modules/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js
++++ b/node_modules/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js
+@@ -8,7 +8,11 @@ import { AIR_ASYNC_TASKS_CAPABILITY, withAirMeta } from "./air-extension.js";
+ import { AsyncTaskRuntime, backgroundBashTaskFromToolResult, clientSupportsAsyncTasks, } from "./async-tasks.js";
+ import { AUTH_STATUS_PROBE_TIMEOUT_MS, AUTH_STATUS_UPDATE_METHOD, authStatusCapability, fromAccountInfo, fromCliStatus, gatewayAuthStatus, mergeAuthStatus, notLoggedInAuthStatus, sameAuthStatus, } from "./auth-status.js";
+ import { execFile } from "node:child_process";
+-import { randomUUID } from "node:crypto";
++// PATCH(zer0 f6-privacy): createHash backs the trace redactor's {len, sha8} content stand-ins.
++import { createHash, randomUUID } from "node:crypto";
++// PATCH(zer0 f6-taskprobe): sync fs for the debug-gated lifecycle tracer below (the adapter's own fs
++// import is the promises API; a trace line must land even if the process dies moments later).
++import * as zer0TraceFs from "node:fs";
+ import { existsSync } from "node:fs";
+ import * as fs from "node:fs/promises";
+ import * as os from "node:os";
+@@ -418,6 +422,118 @@ function isMuslLibc() {
+  *  query stream has already ended (ran to `done` or died). The stream is not
+  *  revivable, so the only recovery is a fresh session. */
+ const SESSION_ENDED_MESSAGE = "The Claude Agent session has ended. Please start a new session.";
++// PATCH(zer0 f6-taskprobe): debug-gated adapter-lifecycle tracer for F6 — "do the inner claude's
++// subagents / background tasks survive a zer0 turn boundary?". The adapter is the ONLY place that can
++// see all of it at once (the bridge child's pid, the session's query identity, queryClosed, the turn
++// queue, the active turn, the session-scoped taskState, and the raw task_* / background_tasks_changed
++// notifications). Writes one NDJSON line per event to the path in
++// ZER0_ADAPTER_TRACE; when that var is unset this is a single truthiness test and no I/O, so the
++// production cost is zero. It NEVER throws into the adapter — observability must not be able to fail a
++// turn — and it never changes control flow: every call site keeps its original behaviour verbatim.
++const ZER0_TRACE_PATH = process.env.ZER0_ADAPTER_TRACE;
++// PATCH(zer0 f6-privacy): THE TRACE RECORDS STRUCTURE, NEVER CONTENT. These artifacts get shared — the
++// operator hands a `.zer0/debug/<chat>/` directory to a reviewer — and the raw SDK task messages carry the
++// operator's ACTUAL work instructions (`prompt`), the model's paraphrase of them (`description`,
++// `summary`) and absolute paths that embed the operator's user + project names (`output_file`). The rule
++// below is deliberately INVERTED from a blocklist: a string is treated as CONTENT unless its key is on
++// this structural allowlist, so a future SDK field carrying prose is redacted by DEFAULT rather than
++// leaking until someone notices it. Numbers/booleans/null pass through — they cannot carry prose.
++// Redacted strings are replaced by {len, sha8}, never dropped: the SHAPE stays diagnosable (a field was
++// present, this long, and stable/changed across turns) with none of the text.
++const ZER0_STRUCTURAL_KEYS = new Set([
++    "type", "subtype", "task_id", "taskId", "tool_use_id", "toolUseId", "session_id", "sessionId",
++    "uuid", "task_type", "subagent_type", "status", "last_tool_name", "tool", "event", "reason",
++    "stop_reason", "stopReason", "role", "model", "queryId", "id",
++]);
++function zer0Sha8(text) {
++    return createHash("sha256").update(text).digest("hex").slice(0, 8);
++}
++/** PATCH(zer0 f6-tasktruth): the note appended to a TaskList/TaskGet result so the model can tell "this
++ *  registry does not track background work" apart from "my background work is gone". Plain prose, capped,
++ *  and only ever emitted when the CLI itself says these tasks are live. */
++function zer0BackgroundTaskContext(tasks) {
++    const rows = tasks.slice(0, 20).map((task) => {
++        const kind = typeof task?.task_type === "string" ? ` [${task.task_type}]` : "";
++        const what = typeof task?.description === "string" ? ` — ${task.description}` : "";
++        return `  - ${String(task?.task_id ?? "unknown")}${kind}${what}`;
++    });
++    return [
++        "[ACP host note] TaskList/TaskGet do not cover background tasks — subagents dispatched with",
++        "run_in_background, and background shells are tracked separately by the CLI and never appear in",
++        "that registry. The following background tasks are LIVE in this session right now:",
++        ...rows,
++        "Do NOT conclude that background work was lost, dropped, or killed because it is missing from",
++        "TaskList, and do not re-dispatch it on that basis. Read a task's output file to check on it.",
++    ].join("\n");
++}
++/** PATCH(zer0 f6-privacy): the ONE content-free bit the TaskList/TaskGet row exists to carry — whether the
++ *  CLI's task registry answered EMPTY or populated. Matched against the CLI's own fixed sentinels, so it
++ *  reads adapter vocabulary, never the operator's task text. Anything else is "populated" (or "other" when
++ *  the result is not a plain string). */
++function zer0TaskResultKind(content) {
++    if (typeof content !== "string")
++        return Array.isArray(content) || content === null || content === undefined ? "other" : "other";
++    return /^\s*"?(No tasks found|Task not found)"?\s*$/.test(content) ? "empty" : "populated";
++}
++/** {len, sha8} for one content string — enough to correlate it across rows, useless for reading it. */
++function zer0RedactString(text) {
++    return { redacted: true, len: text.length, sha8: zer0Sha8(text) };
++}
++/** Structure-only projection of an arbitrary SDK payload (see the rule above). Depth-capped so a cyclic
++ *  or pathological message can never wedge the tracer. */
++function zer0RedactPayload(value, depth = 0) {
++    if (value === null || typeof value === "number" || typeof value === "boolean")
++        return value;
++    if (typeof value === "string")
++        return zer0RedactString(value);
++    if (depth >= 6)
++        return { redacted: true, depthCapped: true };
++    if (Array.isArray(value))
++        return value.slice(0, 50).map((entry) => zer0RedactPayload(entry, depth + 1));
++    if (typeof value !== "object")
++        return { redacted: true, type: typeof value };
++    const out = {};
++    for (const [key, entry] of Object.entries(value)) {
++        out[key] =
++            typeof entry === "string" && ZER0_STRUCTURAL_KEYS.has(key)
++                ? entry
++                : zer0RedactPayload(entry, depth + 1);
++    }
++    return out;
++}
++function zer0Trace(event, fields) {
++    if (!ZER0_TRACE_PATH)
++        return;
++    try {
++        const line = JSON.stringify({ ts: new Date().toISOString(), pid: process.pid, event, ...fields });
++        zer0TraceFs.appendFileSync(ZER0_TRACE_PATH, `${line}\n`, "utf8");
++    }
++    catch {
++        // an unwritable trace file must never affect the session
++    }
++}
++/** The lifecycle columns of one session, read defensively (any of them may be absent mid-teardown).
++ *  PATCH(zer0 f6-privacy): taskState keys are the model's TASK SUBJECTS (free text) — recorded as hashes
++ *  only, which still answers the diagnostic question ("are these the SAME entries as last turn?"). */
++function zer0SessionFields(session, sessionId) {
++    try {
++        return {
++            sessionId,
++            queryId: session?.zer0QueryId ?? null,
++            queryClosed: session?.queryClosed === true,
++            consumerAlive: session?.consumer !== undefined,
++            turnQueue: (session?.turnQueue ?? []).length,
++            activeTurn: session?.activeTurn?.promptUuid ?? null,
++            taskState: session?.taskState instanceof Map ? session.taskState.size : null,
++            taskSubjectHashes: session?.taskState instanceof Map
++                ? [...session.taskState.keys()].slice(0, 20).map((key) => zer0Sha8(String(key)))
++                : null,
++        };
++    }
++    catch {
++        return { sessionId };
++    }
++}
+ // Slash commands that the SDK handles locally without replaying the user
+ // message and without invoking the model.
+ const LOCAL_ONLY_COMMANDS = new Set(["/context", "/heapdump", "/extra-usage"]);
+@@ -1384,10 +1500,19 @@ export class ClaudeAcpAgent {
+         const signOutRespawn = this.respawnSignedOutSession(params.sessionId, session);
+         if (signOutRespawn)
+             session = await signOutRespawn;
++        // PATCH(zer0 f6-taskprobe): the per-prompt lifecycle row — the distinguishing evidence for
++        // "same child + same query + taskState still populated, yet the CLI reports no tasks".
++        // RELOCATED for 0.75.1: upstream now inserts respawnSignedOutSession between the not-found
++        // guard and the queryClosed guard and may REPLACE `session`, so the row is taken after that
++        // swap — tracing the pre-respawn object would report a session prompt() no longer uses.
++        zer0Trace("prompt.enter", zer0SessionFields(session, params.sessionId));
+         // The SDK query stream already terminated (see `queryClosed`); its iterator
+         // can't be revived, so enqueueing here would hang on a deferred that never
+         // settles. Fail clearly and let the client start a fresh session.
+         if (session.queryClosed) {
++            // PATCH(zer0 f6-taskprobe): the WEDGE receipt — every later prompt on this session id dies
++            // here, while the bridge child stays alive (zer0's isAlive() cannot see this).
++            zer0Trace("prompt.rejected.sessionEnded", zer0SessionFields(session, params.sessionId));
+             throw RequestError.internalError(undefined, SESSION_ENDED_MESSAGE);
+         }
+         const subscriptionGuard = this.runClaudeSubscriptionGuard(params.sessionId, session);
+@@ -2301,6 +2426,13 @@ export class ClaudeAcpAgent {
+             session.turnQueue = (session.turnQueue ?? []).filter((t) => t !== turn);
+             session.activeTurn = null;
+             streamedToolInputs.clear();
++            // PATCH(zer0 f6-taskprobe): record the exact boundary at which prompt()
++            // may resolve while background work is still owned by this session.
++            zer0Trace("turn.settled", {
++                ...zer0SessionFields(session, params.sessionId),
++                promptUuid: turn.promptUuid,
++                stopReason: result?.stopReason ?? null,
++            });
+             if (wasHeld) {
+                 // Settling a held turn is its delivery-stretch boundary: the turn's
+                 // answer finished long ago, so text streamed since the last boundary
+@@ -2708,6 +2840,19 @@ export class ClaudeAcpAgent {
+                                 }
+                                 break;
+                             case "status": {
++                                // PATCH(zer0 f6-taskprobe): compaction can change the lifecycle
++                                // around background work, so retain it in the redacted trace.
++                                // 0.75.1: upstream replaced the `compactionInProgress` local with a
++                                // `compaction` lifecycle object (release v0.75.0, "surface context
++                                // compaction as an ACP tool lifecycle"), so that field is dropped
++                                // rather than guessed — status + compact_result still carry the edge.
++                                if (message.status === "compacting" || message.compact_result) {
++                                    zer0Trace("sdk.compaction", {
++                                        ...zer0SessionFields(session, params.sessionId),
++                                        status: message.status ?? null,
++                                        compactResult: message.compact_result ?? null,
++                                    });
++                                }
+                                 if (message.status === "compacting") {
+                                     await compaction.start(message.session_id, message.uuid);
+                                 }
+@@ -3043,6 +3188,13 @@ export class ClaudeAcpAgent {
+                             case "files_persisted":
+                                 break;
+                             case "task_progress":
++                                // PATCH(zer0 f6-taskprobe): progress stays owned by upstream's async-task
++                                // runtime; only its lifecycle edge is added to the redacted trace.
++                                zer0Trace("sdk.taskSignal", {
++                                    ...zer0SessionFields(session, params.sessionId),
++                                    subtype: message.subtype,
++                                    raw: zer0RedactPayload(message),
++                                });
+                                 await asyncTasks.taskProgress({
+                                     task_id: message.task_id,
+                                     description: message.description,
+@@ -3052,6 +3204,11 @@ export class ClaudeAcpAgent {
+                                 });
+                                 break;
+                             case "task_started":
++                                zer0Trace("sdk.taskSignal", {
++                                    ...zer0SessionFields(session, params.sessionId),
++                                    subtype: message.subtype,
++                                    raw: zer0RedactPayload(message),
++                                });
+                                 // For subagent tasks `task_id` is the subagent's agent id (the
+                                 // SDK keys its task registry by agent id) and `tool_use_id` is
+                                 // the Agent/Task tool_use that spawned it — recorded so the
+@@ -3096,6 +3253,18 @@ export class ClaudeAcpAgent {
+                                 }
+                                 break;
+                             case "task_notification":
++                                zer0Trace("sdk.taskSignal", {
++                                    ...zer0SessionFields(session, params.sessionId),
++                                    subtype: message.subtype,
++                                    raw: zer0RedactPayload(message),
++                                });
++                                await this.zer0ForwardBackgroundTasks(params.sessionId, {
++                                    reason: "task_notification",
++                                    taskId: message.task_id ?? null,
++                                    status: message.status ?? null,
++                                    outputFile: message.output_file ?? null,
++                                    summary: message.summary ?? null,
++                                });
+                                 // The task settled — no further tool calls can originate
+                                 // from it, so its registry entry can be dropped.
+                                 await subagents.finishTask(message.task_id, message.status, sendUpdate, message.tool_use_id);
+@@ -3110,6 +3279,11 @@ export class ClaudeAcpAgent {
+                                 session.liveBackgroundTasks.delete(message.task_id);
+                                 break;
+                             case "task_updated":
++                                zer0Trace("sdk.taskSignal", {
++                                    ...zer0SessionFields(session, params.sessionId),
++                                    subtype: message.subtype,
++                                    raw: zer0RedactPayload(message),
++                                });
+                                 await asyncTasks.taskUpdated(message.task_id, message.patch);
+                                 // terminal-status task_updated patch and a (deduplicated)
+                                 // task_notification when a task settles, but only the patch is
+@@ -3260,6 +3434,19 @@ export class ClaudeAcpAgent {
+                             case "control_request_progress":
+                                 break;
+                             case "background_tasks_changed":
++                                zer0Trace("sdk.backgroundTasksChanged", {
++                                    ...zer0SessionFields(session, params.sessionId),
++                                    raw: zer0RedactPayload(message),
++                                });
++                                // PATCH(zer0 f6-tasktruth): preserve the provider's full task
++                                // records for the TaskList/TaskGet truth hook below.
++                                if (session.zer0BackgroundTasks) {
++                                    session.zer0BackgroundTasks.current = message.tasks ?? [];
++                                }
++                                await this.zer0ForwardBackgroundTasks(params.sessionId, {
++                                    reason: "membership_changed",
++                                    tasks: message.tasks ?? [],
++                                });
+                                 await asyncTasks.backgroundTasksChanged(message.tasks);
+                                 // A level signal: the full live background-task set on every
+                                 // membership change, with REPLACE semantics. Used only to
+@@ -3482,6 +3669,115 @@ export class ClaudeAcpAgent {
+                                     },
+                                 });
+                             }
++                            // PATCH(zer0 u2d-c): forward the structured 5h/weekly plan
++                            // windows behind /usage. The experimental SDK call is fail-soft
++                            // and bounded so telemetry can never stall prompt settlement.
++                            // 0.75.1: upstream's own usage work (v0.71.0 per-model token usage,
++                            // v0.75.0 usage-as-Markdown, the rate_limit_event forward on
++                            // _claude/rateLimit) publishes NEITHER the structured 5h/weekly
++                            // windows nor a no-answer receipt, so this stays.
++                            // PATCH(zer0 FL-099): the race used to resolve null on expiry and
++                            // the rate_limits_available guard then sent NOTHING, so "we gave up
++                            // after 3s", "this account has no plan limits" and "the call threw"
++                            // were indistinguishable in every artifact the system produced. All
++                            // three now travel as a schema-valid _meta marker on a usage_update,
++                            // the same channel the windows themselves already use — this process
++                            // has no other bridge to us (client.sessionUpdate is the only one).
++                            if (lastAssistantTotalUsage !== null) {
++                                const usageReceipt = async (outcome) => {
++                                    await this.client.sessionUpdate({
++                                        sessionId: params.sessionId,
++                                        update: {
++                                            sessionUpdate: "usage_update",
++                                            used: lastAssistantTotalUsage,
++                                            size: session.contextWindowSize,
++                                            _meta: { "_claude/usageOutcome": outcome },
++                                        },
++                                    });
++                                };
++                                try {
++                                    const usageCall = session.query.usage_EXPERIMENTAL_MAY_CHANGE_DO_NOT_RELY_ON_THIS_API_YET();
++                                    usageCall.catch(() => { });
++                                    // A MARKER OBJECT, never null: the guard below drops a null
++                                    // before it can be reported, which is the whole defect.
++                                    const timedOut = { zer0UsageOutcome: "timed-out" };
++                                    const planUsage = await Promise.race([
++                                        usageCall,
++                                        new Promise((resolve) => {
++                                            const timer = setTimeout(() => resolve(timedOut), 3000);
++                                            if (typeof timer.unref === "function")
++                                                timer.unref();
++                                        }),
++                                    ]);
++                                    if (planUsage === timedOut) {
++                                        // PATCH(zer0 FL-099 day 3): FORWARD the answer we stopped
++                                        // waiting for instead of dropping it. Deliberately NOT
++                                        // awaited: awaiting here would reintroduce exactly the
++                                        // settlement stall the 3s bound exists to cap.
++                                        // TWO ACCEPTED EDGE CASES, both decided rather than
++                                        // overlooked (the client side of each is documented on
++                                        // deliverLaneUpdate):
++                                        //  1. if the operator has already started turn N+1 on the
++                                        //     SAME session, this lands on N+1's sink. The METERS
++                                        //     still arrive and only the usage.payload diagnostic
++                                        //     is stamped with N+1.
++                                        //  2. if a sanctioned retry opened a NEW session, the
++                                        //     client's session guard REFUSES this answer and that
++                                        //     turn's windows are lost. Accepted, and preferred: the
++                                        //     alternative is folding one session's reading into
++                                        //     another's status, which is a wrong number rather than
++                                        //     a missing one.
++                                        // CAPTURED HERE, BEFORE THE HANDLER IS REGISTERED, and not
++                                        // read inside it: `lastAssistantTotalUsage` is a
++                                        // runConsumer-scoped local that resetTurnScratch nulls the
++                                        // moment activateTurn promotes the next turn — so the
++                                        // forward emitted `used: null` and the client rejected the
++                                        // WHOLE message, windows included.
++                                        const lateUsedTokens = lastAssistantTotalUsage;
++                                        const lateContextWindow = session.contextWindowSize;
++                                        usageCall.then((latePlanUsage) => {
++                                            if (!latePlanUsage?.rate_limits_available || !latePlanUsage.rate_limits) {
++                                                return undefined;
++                                            }
++                                            return this.client.sessionUpdate({
++                                                sessionId: params.sessionId,
++                                                update: {
++                                                    sessionUpdate: "usage_update",
++                                                    used: lateUsedTokens,
++                                                    size: lateContextWindow,
++                                                    _meta: { "_claude/usageWindows": latePlanUsage.rate_limits },
++                                                },
++                                            });
++                                        }).catch(() => { });
++                                        // PATCH(zer0 codex-fix C): the receipt is sent AFTER the
++                                        // handler above is registered, and the order is the whole
++                                        // fix. With the await FIRST, a sessionUpdate rejection
++                                        // jumped to the enclosing catch before the .then existed,
++                                        // so the late /usage answer was discarded.
++                                        await usageReceipt("timed-out");
++                                    }
++                                    else if (planUsage?.rate_limits_available && planUsage.rate_limits) {
++                                        await this.client.sessionUpdate({
++                                            sessionId: params.sessionId,
++                                            update: {
++                                                sessionUpdate: "usage_update",
++                                                used: lastAssistantTotalUsage,
++                                                size: session.contextWindowSize,
++                                                _meta: { "_claude/usageWindows": planUsage.rate_limits },
++                                            },
++                                        });
++                                    }
++                                    else {
++                                        await usageReceipt("no-limits");
++                                    }
++                                }
++                                catch (error) {
++                                    this.logger.error("PATCH(zer0): /usage windows forward failed (non-fatal):", error);
++                                    // Still fail-soft: a receipt that itself throws must not take
++                                    // the turn down with it.
++                                    await usageReceipt("failed").catch(() => { });
++                                }
++                            }
+                             if (session.cancelled) {
+                                 session.pendingExitPlanModeInterruption = undefined;
+                                 session.pendingExitPlanContextReset = undefined;
+@@ -4675,10 +4971,27 @@ export class ClaudeAcpAgent {
+      *  is a lightweight husk (its heavy resources are released here) and is evicted
+      *  on the next closeSession/deleteSession or when the connection's `dispose()`
+      *  runs. */
++    /** PATCH(zer0 f6-tasksurface): emit the session's live background-task state to the client on the
++     *  adapter's own `_claude/*` extension channel. FAIL-SOFT is the whole contract here: this runs inside
++     *  the consumer loop, where a throw would reach the loop's catch and failAllTurns + closeQueryStream
++     *  the session (bricking it) — so a client that does not implement `extNotification`, or one that
++     *  rejects, must be swallowed. Purely additive: no existing notification, stop reason or turn outcome
++     *  changes, and a client that ignores the method sees exactly the old behaviour. */
++    async zer0ForwardBackgroundTasks(sessionId, payload) {
++        try {
++            await this.client.extNotification("_claude/backgroundTasks", { sessionId, ...payload });
++        }
++        catch {
++            // a client without this extension is a supported client, not an error
++        }
++    }
+     closeQueryStream(session) {
+         if (session.queryClosed) {
+             return;
+         }
++        // PATCH(zer0 f6-taskprobe): the moment the session becomes permanently unusable. Paired with
++        // prompt.rejected.sessionEnded this pins the wedge to an exact instant and cause.
++        zer0Trace("queryStream.closed", zer0SessionFields(session, session.zer0SessionId));
+         session.queryClosed = true;
+         session.consumer = undefined;
+         session.settingsManager.dispose();
+@@ -5887,6 +6200,9 @@ export class ClaudeAcpAgent {
+         // below) so the TaskCreated/TaskCompleted hook callbacks can close over
+         // the same Map that the streaming message handler will read from.
+         const taskState = new Map();
++        // PATCH(zer0 f6-tasktruth): full background-task records are separate
++        // from upstream's attribution Map and feed only the truth context hook.
++        const zer0BackgroundTasks = { current: [] };
+         // Resolve every workspace root once. The hidden report tool uses this same
+         // set for lexical path validation, and the SDK receives it below.
+         const acpAdditionalDirectories = params.additionalDirectories ?? sessionMeta?.additionalRoots ?? [];
+@@ -6026,6 +6342,39 @@ export class ClaudeAcpAgent {
+                                     await this.updateConfigOption(sessionId, MODE_CONFIG_ID, "plan");
+                                 },
+                             }),
++                            // PATCH(zer0 f6-tasktruth): TELL THE MODEL THE TRUTH ABOUT ITS OWN BACKGROUND
++                            // WORK. Live-proven failure (F6 repro, 2026-07-24): TaskList answers from the
++                            // plan/todo registry, which never contains background subagents or shells, so
++                            // it returned "No tasks found" while three tasks were demonstrably alive — and
++                            // the model concluded its subagents had DIED and re-dispatched paid fan-outs.
++                            // The adapter cannot change what the CLI's tool returns, but PostToolUse
++                            // `additionalContext` is delivered to the model alongside the result, so the
++                            // live set can be appended instead of leaving the model to infer death from an
++                            // empty list. AUGMENTS, never replaces (`updatedToolOutput` would mean
++                            // fabricating a TaskList payload shape we do not own). Silent no-op when
++                            // nothing is live, so a session with no background work is untouched.
++                            async (input) => {
++                                try {
++                                    if (input?.hook_event_name !== "PostToolUse")
++                                        return { continue: true };
++                                    if (input.tool_name !== "TaskList" && input.tool_name !== "TaskGet")
++                                        return { continue: true };
++                                    const live = zer0BackgroundTasks.current;
++                                    if (!Array.isArray(live) || live.length === 0)
++                                        return { continue: true };
++                                    return {
++                                        continue: true,
++                                        hookSpecificOutput: {
++                                            hookEventName: "PostToolUse",
++                                            additionalContext: zer0BackgroundTaskContext(live),
++                                        },
++                                    };
++                                }
++                                catch {
++                                    // a hook must never fail the tool call it observes
++                                    return { continue: true };
++                                }
++                            },
+                         ],
+                     },
+                 ],
+@@ -6279,7 +6628,16 @@ export class ClaudeAcpAgent {
+             // "opus[1m]" row matched for a bare 200k id), so on the fallback path only
+             // the id itself is a trustworthy window signal.
+             const seededWindow = immediateContextWindow(providerCacheKey, models.currentModelId, allowlistedModelInfo);
++            const zer0QueryId = randomUUID();
++            zer0Trace("session.created", {
++                sessionId,
++                queryId: zer0QueryId,
++                resumed: creationOpts?.resume !== undefined,
++            });
+             this.sessions[sessionId] = {
++                zer0QueryId,
++                zer0SessionId: sessionId,
++                zer0BackgroundTasks,
+                 query: q,
+                 input: input,
+                 cancelled: false,
+@@ -7962,6 +8320,21 @@ export function toAcpNotifications(content, role, sessionId, toolUseCache, clien
+                             entries: taskStateToPlanEntries(taskState),
+                         };
+                     }
++                    // PATCH(zer0 f6-taskprobe): correlate the provider's TaskList/
++                    // TaskGet result shape with the adapter's task mirror without
++                    // recording operator content.
++                    zer0Trace("taskTool.result", {
++                        tool: toolUse.name,
++                        toolUseId: chunk.tool_use_id,
++                        isError: isError === true,
++                        input: zer0RedactPayload(toolUse.input ?? null),
++                        result: zer0RedactPayload(chunk.content ?? null),
++                        resultKind: zer0TaskResultKind(chunk.content),
++                        adapterTaskState: taskState instanceof Map ? taskState.size : null,
++                        adapterTaskSubjectHashes: taskState instanceof Map
++                            ? [...taskState.keys()].slice(0, 20).map((key) => zer0Sha8(String(key)))
++                            : null,
++                    });
+                 }
+                 else if (toolUse.name !== "TodoWrite") {
+                     const { _meta: toolMeta, ...toolUpdate } = toolUpdateFromToolResult(chunk, toolUseCache[chunk.tool_use_id], supportsTerminalOutput, toolUseResult);

@@ -1,0 +1,414 @@
+{
+  "generated": "m0irai Phase 4 rust prune (branch rust-prune)",
+  "summary": {
+    "directories_and_files_removed": 66,
+    "tracked_files_removed": 1956,
+    "workspace_members_before": 83,
+    "workspace_members_after": 20,
+    "by_category": {
+      "grok-product-crate": 61,
+      "grok-dev-crate-untestable-on-windows": 2,
+      "dotslash-launcher": 1,
+      "quarantined-ui": 1,
+      "crates-io-patch": 1
+    }
+  },
+  "entries": [
+    {
+      "path": "rust/crates/build/xai-proto-build",
+      "category": "grok-product-crate",
+      "files": 6,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/ptyctl-cli",
+      "category": "grok-product-crate",
+      "files": 7,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-acp-lib",
+      "category": "grok-product-crate",
+      "files": 9,
+      "reason": "optional product dependency of xai-grok-pager (pruned); after the xai-grok-pager-pty-harness and xai-grok-test-support dev edges were also pruned, nothing in the retained set reaches it"
+    },
+    {
+      "path": "rust/crates/codegen/xai-agent-lifecycle",
+      "category": "grok-product-crate",
+      "files": 16,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-chat-state",
+      "category": "grok-product-crate",
+      "files": 18,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-codebase-graph",
+      "category": "grok-product-crate",
+      "files": 29,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-crash-handler",
+      "category": "grok-product-crate",
+      "files": 8,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-fast-worktree",
+      "category": "grok-product-crate",
+      "files": 38,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-file-utils",
+      "category": "grok-product-crate",
+      "files": 16,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-fsnotify",
+      "category": "grok-product-crate",
+      "files": 13,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-gix-status",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-agent",
+      "category": "grok-product-crate",
+      "files": 36,
+      "reason": "optional product dependency of xai-grok-pager AND one of its 4 dev declarations; both pruned - its build closure reaches xai-grok-tools-api, whose build.rs requires protoc and exits 101 on this machine, and its 4 in-pager users are all grok-runtime-gated with zero references from the pager's tests/ or benches/"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-announcements",
+      "category": "grok-product-crate",
+      "files": 4,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-auth",
+      "category": "grok-product-crate",
+      "files": 6,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-config-types",
+      "category": "grok-product-crate",
+      "files": 7,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-env",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-extra-ca",
+      "category": "grok-product-crate",
+      "files": 7,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-hooks",
+      "category": "grok-product-crate",
+      "files": 27,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-http",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-mcp",
+      "category": "grok-product-crate",
+      "files": 11,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-memory",
+      "category": "grok-product-crate",
+      "files": 16,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-models",
+      "category": "grok-product-crate",
+      "files": 3,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-pager-bin",
+      "category": "grok-product-crate",
+      "files": 3,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-pager-minimal",
+      "category": "grok-product-crate",
+      "files": 13,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-pager-pty-harness",
+      "category": "grok-dev-crate-untestable-on-windows",
+      "files": 45,
+      "reason": "pruned dev edge: it compiles, but its own 3 test targets fail 10/10 here because they shell out to build `xai-grok-pager-bin` (grok's composition root, deleted by this prune) - \"package ID specification `xai-grok-pager-bin` did not match any packages\""
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-plugin-marketplace",
+      "category": "grok-product-crate",
+      "files": 12,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-sampler",
+      "category": "grok-product-crate",
+      "files": 29,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-sampling-types",
+      "category": "grok-product-crate",
+      "files": 17,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-sandbox",
+      "category": "grok-product-crate",
+      "files": 15,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-secrets",
+      "category": "grok-product-crate",
+      "files": 3,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-shared",
+      "category": "grok-product-crate",
+      "files": 9,
+      "reason": "optional product dependency of xai-grok-pager-render; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-shell",
+      "category": "grok-product-crate",
+      "files": 779,
+      "reason": "optional product dependency of xai-grok-pager AND one of its 4 dev declarations; both pruned - same protoc closure (xai-grok-tools -> xai-grok-agent -> xai-grok-shell), and its only consumer tests/settings_e2e.rs additionally needs grok-runtime-gated pager modules (app, settings, appearance, views::settings_modal)"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-shell-base",
+      "category": "grok-product-crate",
+      "files": 11,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-shell-session-support",
+      "category": "grok-product-crate",
+      "files": 3,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-subagent-resolution",
+      "category": "grok-product-crate",
+      "files": 8,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-telemetry",
+      "category": "grok-product-crate",
+      "files": 43,
+      "reason": "optional product dependency of both xai-grok-pager and xai-grok-pager-render; both declarations pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-test-support",
+      "category": "grok-dev-crate-untestable-on-windows",
+      "files": 16,
+      "reason": "pruned dev edge: compiles, but 2 of its own lib tests fail on this Windows machine (sandbox::tests::windows_platform_essentials_are_allowlisted panics at src/sandbox.rs:819 \"SystemRoot\"; process::tests::windows_job_kill_reaps_spawned_grandchild panics at src/process.rs:1228 \"pid file timeout\"); its only surviving pager consumer tests/pty_auto_mode.rs has all TestSandbox cases #[ignore]d"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-tools",
+      "category": "grok-product-crate",
+      "files": 247,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-tools-api",
+      "category": "grok-product-crate",
+      "files": 7,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-update",
+      "category": "grok-product-crate",
+      "files": 16,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-voice",
+      "category": "grok-product-crate",
+      "files": 19,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-workspace",
+      "category": "grok-product-crate",
+      "files": 100,
+      "reason": "optional product dependency of both xai-grok-pager and xai-grok-pager-render; both declarations pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-workspace-client",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-grok-workspace-types",
+      "category": "grok-product-crate",
+      "files": 49,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-hooks-plugins-types",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-hunk-tracker",
+      "category": "grok-product-crate",
+      "files": 18,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-mixpanel",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-sqlite-journal",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-system-power",
+      "category": "grok-product-crate",
+      "files": 5,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-token-estimation",
+      "category": "grok-product-crate",
+      "files": 2,
+      "reason": "optional product dependency of xai-grok-pager; declaration pruned, so the crate is outside the room's feature-aware dependency closure"
+    },
+    {
+      "path": "rust/crates/codegen/xai-tracing-macros",
+      "category": "grok-product-crate",
+      "files": 4,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/codegen/xai-workflow",
+      "category": "grok-product-crate",
+      "files": 9,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-circuit-breaker",
+      "category": "grok-product-crate",
+      "files": 20,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-computer-hub-core",
+      "category": "grok-product-crate",
+      "files": 16,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-computer-hub-mcp-adapter",
+      "category": "grok-product-crate",
+      "files": 6,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-computer-hub-sdk",
+      "category": "grok-product-crate",
+      "files": 22,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-grok-compaction",
+      "category": "grok-product-crate",
+      "files": 40,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-interjection-core",
+      "category": "grok-product-crate",
+      "files": 5,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-test-utils",
+      "category": "grok-product-crate",
+      "files": 7,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-tool-protocol",
+      "category": "grok-product-crate",
+      "files": 22,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-tool-runtime",
+      "category": "grok-product-crate",
+      "files": 19,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-tool-types",
+      "category": "grok-product-crate",
+      "files": 7,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/crates/common/xai-tracing",
+      "category": "grok-product-crate",
+      "files": 9,
+      "reason": "grok product crate reachable only through the pruned optional product declarations; not a member of the room's feature-aware dependency closure (cargo tree -p zer0-v2-bin -e normal,build) nor a dependency of any retained crate"
+    },
+    {
+      "path": "rust/bin/protoc",
+      "category": "dotslash-launcher",
+      "files": 1,
+      "reason": "grok's vendored protoc launcher is a dotslash script, not a Win32 binary (\"%1 is not a valid Win32 application. (os error 193)\"); the only consumers of its build.rs codegen (xai-grok-tools-api and its dependents) are deleted by this prune"
+    },
+    {
+      "path": "rust/crates/zer0-v2-bin/src/ui",
+      "category": "quarantined-ui",
+      "files": 9,
+      "reason": "the quarantined local ratatui renderer behind zer0-v2-bin's quarantined-local-ui/terminal-ui features; migration evidence only, never on the CLI entrypoint - features and the five optional deps that only they activated (crossterm, ratatui, xai-grok-markdown, xai-ratatui-inline, xai-ratatui-textarea) removed with it"
+    },
+    {
+      "path": "rust/Cargo.toml#[patch.crates-io]",
+      "category": "crates-io-patch",
+      "files": 0,
+      "reason": "the [patch.crates-io] async-openai git fork override (2 lines, removed in cf07701); its only consumers (xai-grok-sampler and the agent/tools closure) are deleted by this prune and async-openai no longer appears in rust/Cargo.lock"
+    }
+  ]
+}

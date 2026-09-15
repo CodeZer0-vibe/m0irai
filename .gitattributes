@@ -1,0 +1,19 @@
+# Normalize all text to LF in the repo and check it out as LF on every platform.
+# Required because biome.json sets formatter.lineEnding = "lf"; without this,
+# core.autocrlf=true rewrites the working tree to CRLF and `biome check .` fails
+# locally on Windows (and on the windows-latest CI leg). git still auto-detects
+# binary files and leaves them untouched.
+* text=auto eol=lf
+
+# Belt-and-suspenders: never normalize known-binary blobs.
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.ico  binary
+*.db   binary
+*.node binary
+*.wasm binary
+
+# m0irai: the protocol conformance corpus is byte-exact test data — never normalize it (F1, 2026-08-17).
+protocol/** -text
+*.bin -text

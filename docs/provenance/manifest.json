@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "project": "m0irai",
+  "createdAt": "2026-08-17",
+  "plan": {
+    "path": "docs/specs/2026-08-17-m0irai-standalone-plan-v5.md",
+    "sha256": "e3915efe1d5f8ab1c2e04e27e13696ee05775d6f6d244456532351216deca7a6"
+  },
+  "roots": {
+    "OLD": "the operator workspace (read-only source; machine path intentionally omitted)",
+    "WORK": "cutting repository (disposable history)",
+    "FINAL": "single-commit export",
+    "REFERENCE": "D:grok-ref = fresh clone of upstream xai-org/grok-build at latest main (reference only, never imported wholesale)"
+  },
+  "inputs": {
+    "node": {
+      "repo": "zer0-agent-ci",
+      "commit": "31bd3eaf458b44eebcdab70d6cc2dd1ec1bdc666",
+      "tree": "eb65b32a379f2e9ad3b82684d27c6129baa160f5",
+      "branch": "codex/v2-room-layer",
+      "backupRemote": "https://github.com/CodeZer0-vibe/zer0-v2-node.git",
+      "trackedFiles": 1883,
+      "method": "git clone (local object store) + detach at commit; .git removed; every working file hash-verified (git hash-object --no-filters) against the pin tree: 1883/1883 identical",
+      "licence": {
+        "path": "LICENSE",
+        "spdx": "MIT",
+        "sha256": "96418605d54bca495555e93c9805850f3ce76fc774fe24e35b20f698d6956b09"
+      }
+    },
+    "rust": {
+      "repo": "grok-build fork",
+      "commit": "82d25249cfd28ca721eca1b1d4355c75ac4cb078",
+      "tree": "81717079a6448b0094fcb547c58abbfa6a1dca76",
+      "branch": "zer0-v2/b13-shipping",
+      "upstreamBase": "b13fa52 (xai-org/grok-build, Synced from monorepo, 2026-08-10)",
+      "backupRemote": "https://github.com/CodeZer0-vibe/zer0-v2-rust.git",
+      "trackedFiles": 3166,
+      "method": "git -c core.autocrlf=false -c core.eol=lf archive <commit> | tar -x -C rust/ ; 3166/3166 files hash-verified against the pin tree",
+      "licence": {
+        "path": "rust/LICENSE",
+        "spdx": "Apache-2.0",
+        "sha256": "116f7778b9802e569b7fa3a532b17bd80eb13c67837def01eed093d4ea472f28"
+      },
+      "thirdParty": "rust/THIRD-PARTY-NOTICES"
+    },
+    "protocol": {
+      "repo": "outer workspace",
+      "outerCommit": "168037373aeae8d7f315a9011ec22367271890aa",
+      "subtree": "b13faf2ca6a7b33f8ff268059123883e5aaec0b6",
+      "backupRemote": "https://github.com/CodeZer0-vibe/zer0-v2-workspace.git",
+      "files": 39,
+      "method": "git -c core.autocrlf=false -c core.eol=lf archive <outerCommit>:protocol | tar -x -C protocol/ ; 39/39 files hash-verified (F1: with default autocrlf every trailing LF became CRLF)"
+    }
+  },
+  "tools": {
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "git": "git version 2.53.0.windows.1",
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)",
+    "toolchainFile": "rust/rust-toolchain.toml (1.94.0)"
+  },
+  "baseline": {
+    "record": "docs/STATE.md §Phase 0 (measured in a disposable root outside OLD, 2026-08-17)"
+  },
+  "reference": {
+    "path": "D:\\grok-ref",
+    "remote": "https://github.com/xai-org/grok-build.git",
+    "branch": "main",
+    "headAtClone": "9fabade",
+    "containsBase": "b13fa52",
+    "role": "reference only — never imported wholesale"
+  }
+}

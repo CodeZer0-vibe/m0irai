@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zer0.local/protocol/zer0-room-v1.schema.json",
+  "title": "zer0.room/v1 event envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "version", "sessionId", "eventSeq", "eventId", "turnId", "occurredAt", "type", "payload"],
+  "properties": {
+    "protocol": { "const": "zer0.room" },
+    "version": { "const": 1 },
+    "sessionId": { "type": "string", "minLength": 1 },
+    "eventSeq": { "$ref": "#/$defs/decimalSequence" },
+    "eventId": { "type": "string", "minLength": 1 },
+    "turnId": { "type": "string", "minLength": 1 },
+    "occurredAt": { "type": "string", "format": "date-time", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$" },
+    "type": {
+      "enum": ["turn.accepted", "route.resolved", "lane.queued", "lane.started", "lane.activity", "lane.chunk", "lane.cancelling", "lane.completed", "lane.failed", "lane.cancelled", "agent.status", "agent.mode", "message.committed", "turn.completed", "room.paused", "room.resumed", "permission.requested", "permission.resolved", "hop.dispatched", "hop.blocked", "session.saved", "backend.failed", "room.notice"]
+    },
+    "payload": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "lane.started" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/laneStartedPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "lane.chunk" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/laneChunkPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "lane.activity" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/laneActivityPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "agent.status" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/agentStatusPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "agent.mode" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/agentModePayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "enum": ["hop.dispatched", "hop.blocked"] } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/hopPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "permission.requested" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/permissionRequestedPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "permission.resolved" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/permissionResolvedPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "backend.failed" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/backendFailedPayload" } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "room.notice" } }, "required": ["type"] },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/roomNoticePayload" } } }
+    }
+  ],
+  "$defs": {
+    "decimalSequence": { "type": "string", "pattern": "^(0|[1-9][0-9]*)$" },
+    "agent": { "enum": ["claude", "codex", "gemini"] },
+    "laneStartedPayload": {
+      "type": "object",
+      "required": ["laneId", "streamId", "agent"],
+      "properties": {
+        "laneId": { "type": "string", "minLength": 1 },
+        "streamId": { "type": "string", "minLength": 1 },
+        "agent": { "$ref": "#/$defs/agent" },
+        "modelId": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "laneChunkPayload": {
+      "type": "object",
+      "required": ["laneId", "streamId", "agent", "streamSeq", "chunkIndex", "channel", "text"],
+      "properties": {
+        "laneId": { "type": "string", "minLength": 1 },
+        "streamId": { "type": "string", "minLength": 1 },
+        "agent": { "$ref": "#/$defs/agent" },
+        "modelId": { "type": "string", "minLength": 1 },
+        "streamSeq": { "$ref": "#/$defs/decimalSequence" },
+        "chunkIndex": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+        "channel": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "description": "Maximum 32768 UTF-8 bytes on the wire; JSON Schema maxLength is deliberately not used because it counts characters." }
+      },
+      "additionalProperties": true
+    },
+    "laneActivityPayload": {
+      "type": "object",
+      "required": ["laneId", "streamId", "toolCallId", "update"],
+      "properties": {
+        "laneId": { "type": "string", "minLength": 1 },
+        "streamId": { "type": "string", "minLength": 1 },
+        "toolCallId": { "type": "string", "minLength": 1 },
+        "update": { "enum": ["tool_call", "tool_call_update"] }
+      },
+      "additionalProperties": true
+    },
+    "agentStatusPayload": {
+      "type": "object",
+      "required": ["agent"],
+      "properties": {
+        "agent": { "$ref": "#/$defs/agent" },
+        "auth": { "enum": ["ready", "limited", "down"] },
+        "usage": {
+          "type": "object",
+          "required": ["exhausted"],
+          "properties": {
+            "exhausted": { "type": "boolean" },
+            "contextUsedPct": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "fiveHourUsedPct": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "fiveHourResetsAtMs": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "weeklyUsedPct": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "weeklyResetsAtMs": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          },
+          "additionalProperties": false
+        },
+        "availability": {
+          "type": "object",
+          "required": ["state"],
+          "properties": {
+            "state": { "enum": ["ready", "exhausted", "needs_auth", "local_blocked", "retrying"] },
+            "resetsAtMs": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "anyOf": [
+        { "required": ["auth"] },
+        { "required": ["usage"] },
+        { "required": ["availability"] }
+      ],
+      "additionalProperties": false
+    },
+    "agentModePayload": {
+      "type": "object",
+      "required": ["agent", "modeId", "status"],
+      "properties": {
+        "agent": { "$ref": "#/$defs/agent" },
+        "modeId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "word": { "enum": ["plan", "careful", "edits", "auto", "strict", "smart"] },
+        "status": { "enum": ["active", "pending", "failed"] },
+        "error": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "availableModeIds": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hopPayload": {
+      "type": "object",
+      "required": ["fromAgent", "toAgent", "parentMessageId", "hopIndex", "hopId"],
+      "properties": {
+        "fromAgent": { "$ref": "#/$defs/agent" },
+        "toAgent": { "$ref": "#/$defs/agent" },
+        "parentMessageId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "hopIndex": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "maxHop": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "hopBudget": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+        "hopId": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "text": { "type": "string", "minLength": 1, "maxLength": 2048 }
+      },
+      "oneOf": [
+        { "required": ["maxHop"], "not": { "required": ["hopBudget"] } },
+        { "required": ["hopBudget"], "not": { "required": ["maxHop"] } }
+      ],
+      "additionalProperties": false
+    },
+    "permissionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "permissionRequestedPayload": {
+      "type": "object",
+      "required": ["agent", "askId"],
+      "properties": {
+        "agent": { "$ref": "#/$defs/agent" },
+        "askId": { "$ref": "#/$defs/permissionId" },
+        "toolTitle": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "options": {
+          "type": "array",
+          "maxItems": 9,
+          "items": {
+            "type": "object",
+            "required": ["optionId"],
+            "properties": {
+              "optionId": { "$ref": "#/$defs/permissionId" },
+              "kind": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "name": { "type": "string", "minLength": 1, "maxLength": 120 }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "permissionResolvedPayload": {
+      "type": "object",
+      "required": ["agent", "askId", "outcome"],
+      "properties": {
+        "agent": { "$ref": "#/$defs/agent" },
+        "askId": { "$ref": "#/$defs/permissionId" },
+        "outcome": { "enum": ["approved", "denied", "timeout", "invalidated"] },
+        "optionId": { "$ref": "#/$defs/permissionId" }
+      },
+      "additionalProperties": false
+    },
+    "backendFailedPayload": {
+      "type": "object",
+      "properties": {
+        "message": { "type": "string", "minLength": 1 },
+        "error": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "roomNoticePayload": {
+      "type": "object",
+      "description": "One non-fatal condition the room announces as a single quiet transcript row. Generic on purpose: the next non-fatal condition adds a cause and a phrase, never a new event type.",
+      "required": ["cause", "detail"],
+      "properties": {
+        "cause": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "Known causes are memory-db-open-failed, memory-project-resolve-failed, memory-compose-failed, memory-cursor-failed, memory-request-files-failed, memory-failure-log-unwritable and agy-conversation-lost. Deliberately NOT a closed enum on the wire: an older terminal reading a newer host must render an unrecognized cause with a generic phrase rather than reject the event and lose a row the operator needs. The closed set is enforced at the emission site, which is the only producer."
+        },
+        "agent": { "$ref": "#/$defs/agent" },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Diagnostic text for the journal, bounded to 200 code points. NEVER painted: the room renders a fixed phrase chosen by cause, so provider or error text can never reach the screen through this field."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
