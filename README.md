@@ -2,9 +2,9 @@
 
 **Three coding agents, Claude Code, Codex and Gemini, working in one terminal, on the same repo, at the same time.**
 
-I kept using Claude, Codex and Gemini one at a time. I'd get an answer from one, paste it into the next, re-explain what I'd already said, then carry the result back again. I was the thing moving context between them. m0irai is me trying to delete that job.
+m0irai is a room. You open it inside a repo, and the three agents take a live turn in one shared conversation. Their replies land in a ledger. The next prompt to each of them carries what the others just said. When the session closes, what got decided is digested into memory the next session starts from. That's the whole loop, and everything in this repo exists to make it hold.
 
-It's one room. You say something once, and all three agents hear it and see the same work. So instead of three tabs I have to reconcile in my head, they can actually work together: one builds, another reviews it, and a third can go check a current API or a library while the other two keep going.
+I built it because I was the thing moving context between three CLIs, and I wanted that job gone. In the room they can actually work together: one builds, another reviews it, and a third can go check a current API or a library while the other two keep going.
 
 ![m0irai, three agents in one terminal](docs/demo.gif)
 
@@ -17,12 +17,9 @@ It's one room. You say something once, and all three agents hear it and see the 
 - You talk to the room in plain messages. `@codex` or `@gemini` sends something to one agent. `/council <topic>` asks all three for an opinion at once.
 - Claude Code and Codex join over the [Agent Client Protocol](https://agentclientprotocol.com). Gemini joins through Google's Antigravity CLI. All three run as the real CLIs you already have installed and signed into. m0irai never sees a key.
 - Everything the agents say goes into one transcript and a SQLite ledger. If the room dies mid-session, the next start replays its journal and tells you, once, what it restored.
+- When a session closes, a detached digest run turns what was decided into memory rows in the ledger, and the briefing each agent gets at the start of the next session carries them.
 - Permission prompts come to you with the actual tool call named. If an agent sends something the room can't carry, it gets dropped with a logged reason, not silently.
 - The three agents work at the same time, as equals. There's no leader and no queue. That part is on purpose, and I've turned down every change that would have added one.
-
-## The first thing I built with it
-
-A small neon snake game. On its own, no single agent quite finished it: each one got part of the way and missed something one of the others caught. The three of them together did finish it. That was the moment the shared-room idea stopped being a nice thought and became the reason I kept going, because you keep the part that only one of the three would have gotten.
 
 ## How it's built
 
