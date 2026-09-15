@@ -1,6 +1,6 @@
 {
   "policy": "work",
-  "count": 2074,
+  "count": 2078,
   "paths": [
     ".dependency-cruiser.cjs",
     ".gitattributes",
@@ -69,6 +69,10 @@
     "docs/architecture/workspace-trust-gate.md",
     "docs/audits/audit-zero-cli-full-audit.md",
     "docs/audits/drift-invariant-drift.md",
+    "docs/brand/mark-crest.svg",
+    "docs/brand/mark-disc.svg",
+    "docs/brand/mark-icon.svg",
+    "docs/brand/mark.svg",
     "docs/decisions/2026-07-14-session-state.md",
     "docs/decisions/2026-07-28-memory-model.md",
     "docs/decisions/2026-07-28-the-room-is-alive.md",

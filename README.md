@@ -1,10 +1,12 @@
+<p align="center"><img src="docs/brand/mark-crest.svg" width="132" alt="the m0irai mark: three commas turning inside a ring"></p>
+
 # m0irai
 
-**Three coding agents, Claude Code, Codex and Gemini, working in one terminal, on the same repo, at the same time.**
+> spin · measure · cut — three threads, one process.
 
-m0irai is a room. You open it inside a repo, and the three agents take a live turn in one shared conversation. Their replies land in a ledger. The next prompt to each of them carries what the others just said. When the session closes, what got decided is digested into memory the next session starts from. That's the whole loop, and everything in this repo exists to make it hold.
+**Three minds on one thread. Claude Code, Codex and Gemini in one live terminal room, as equals, sharing one memory.**
 
-I built it because I was the thing moving context between three CLIs, and I wanted that job gone. In the room they can actually work together: one builds, another reviews it, and a third can go check a current API or a library while the other two keep going.
+m0irai is not a chatbot with plugins and not an orchestrator with a boss model. It's a room. Three coding agents see the same conversation, the same files and the same memory, reply when they have something to say, and correct each other in the open. You talk to the room. The room answers with whichever of them has the answer, and the other two check it.
 
 ![m0irai, three agents in one terminal](docs/demo.gif)
 
@@ -12,14 +14,24 @@ I built it because I was the thing moving context between three CLIs, and I want
 
 ---
 
+## Why the name
+
+The Moirai are the three Fates. Clotho spins the thread, Lachesis measures it, Atropos cuts it. Three sisters, one thread, and nothing escapes what they decide together. The 0 is the zer0 signature, the family this came out of. The mark is a mitsudomoe: three forces turning as one inside a ring, and the ring is a zero.
+
+One rule comes out of that and it shapes the whole design: the Fates are a set, never job titles. No agent in the room is ever "the cutter".
+
 ## What it does right now
 
-- You talk to the room in plain messages. `@codex` or `@gemini` sends something to one agent. `/council <topic>` asks all three for an opinion at once.
-- Claude Code and Codex join over the [Agent Client Protocol](https://agentclientprotocol.com). Gemini joins through Google's Antigravity CLI. All three run as the real CLIs you already have installed and signed into. m0irai never sees a key.
-- Everything the agents say goes into one transcript and a SQLite ledger. If the room dies mid-session, the next start replays its journal and tells you, once, what it restored.
-- When a session closes, a detached digest run turns what was decided into memory rows in the ledger, and the briefing each agent gets at the start of the next session carries them.
-- Permission prompts come to you with the actual tool call named. If an agent sends something the room can't carry, it gets dropped with a logged reason, not silently.
-- The three agents work at the same time, as equals. There's no leader and no queue. That part is on purpose, and I've turned down every change that would have added one.
+You open the room inside a repo. The three agents take a live turn in one shared conversation. Their replies land in a ledger. The next prompt to each of them carries what the others just said. When the session closes, what got decided is digested into memory the next session starts from. That's the whole loop, and everything in this repo exists to make it hold.
+
+- **One room, three agents, no roles.** Nobody is "the reviewer". Anyone can answer, anyone can object, and nobody gets the last word on their own work.
+- **You talk to the room in plain messages.** `@codex` or `@gemini` sends something to one agent. `/council <topic>` asks all three for an opinion at once.
+- **Your subscriptions, your machine.** Claude Code and Codex join over the [Agent Client Protocol](https://agentclientprotocol.com). Gemini joins through Google's Antigravity CLI. All three run as the real CLIs you already have installed and signed into. No API keys, no proxy. Nothing leaves your machine except what those CLIs already send.
+- **One memory.** Everything the agents say goes into one transcript and a SQLite ledger. If the room dies mid-session, the next start replays its journal and tells you, once, what it restored. When a session closes, a detached digest run turns what was decided into memory rows, and the briefing each agent gets at the start of the next session carries them.
+- **Live, not turn-based.** Work is visible while it happens. The three agents work at the same time. There's no leader and no queue, and I've turned down every change that would have added one.
+- **Permissions in the open.** A permission prompt comes to you with the actual tool call named. If an agent sends something the room can't carry, it gets dropped with a logged reason, not silently.
+
+Free and open source, and it stays that way. There's no paid tier and nothing about the room sits behind a paywall.
 
 ## How it's built
 
