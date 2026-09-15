@@ -8,7 +8,7 @@ It's one room. You say something once, and all three agents hear it and see the 
 
 ![m0irai, three agents in one terminal](docs/demo.gif)
 
-**Watch the full demo:** [walkthrough](https://github.com/CodeZer0-vibe/m0irai/releases/download/v0.1.0-preview/M0irai.mp4)
+**Watch the full demo:** [90-second walkthrough](https://github.com/CodeZer0-vibe/m0irai/releases/download/v0.1.0-preview/M0irai.mp4)
 
 ---
 
