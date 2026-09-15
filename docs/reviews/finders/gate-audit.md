@@ -237,12 +237,12 @@ row has to be re-derived by running it, not carried forward.
 §4: "**Harness generator: UNSUPPORTED** … `.zer0/oracle/UNSUPPORTED` recorded on day one. **No push
 of the new repo before S1 lands.**"
 
-From the operator's own gate, `C:\Users\mianc\.claude\hooks\ship-gate.sh:138-139`:
+From the operator's own gate, `C:\Users\<user>\.claude\hooks\ship-gate.sh:138-139`:
 ```
 # --- no enrolled oracle => ungated repo. Deliberate, VISIBLE fail-open (/ship warns). ---
 [ -f "$manifest" ] || allow "no oracle enrolled for this repo ($key) — push allowed. ..."
 ```
-and `C:\Users\mianc\.claude\skills\ship\SKILL.md:20`: "**UNSUPPORTED** → stated as 'type
+and `C:\Users\<user>\.claude\skills\ship\SKILL.md:20`: "**UNSUPPORTED** → stated as 'type
 unsupported', proceed ungated with that on the record."
 
 The gate runs the enrolled `verify_path` (default `.zer0/oracle/verify.sh`, ship-gate.sh:142). The

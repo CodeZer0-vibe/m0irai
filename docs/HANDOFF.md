@@ -72,7 +72,7 @@ You are picking up zer0-agent-ci, a CI/CD pipeline where AI agents (claude/codex
 **Do these in order, do not skip:**
 
 1. **Read this whole HANDOFF** — it's the post-compact survival doc.
-2. **Read `MEMORY.md`** index in `~/.claude/projects/C--Users-mianc-VibeCoding-TeamWork/memory/`.
+2. **Read `MEMORY.md`** index in `~/.claude/projects/C--Users-<user>-VibeCoding-TeamWork/memory/`.
 3. **Specifically open these memory entries** (they encode locked decisions):
    - `project_zer0_vision_locked_v2_1.md` — capacity > dollars, TUI grammar, packet sequencing
    - `project_buildpacketworkflow_v2_ratified.md` — architecture v2 changes
@@ -405,11 +405,11 @@ All of this is orchestrator-direct (no codex burn). When codex returns, the disp
 bash ~/.claude/tools/dispatch.sh codex \
   .council/cross-model/{packet-id}-brief.md \
   .council/cross-model/{packet-id}-result.md \
-  10800 /c/Users/mianc/VibeCoding/zer0-agent-ci
+  10800 /c/Users/<user>/VibeCoding/zer0-agent-ci
 
 # Codex REVIEW (read-only)
 CODEX_SANDBOX=read-only bash ~/.claude/tools/dispatch.sh codex \
-  {prompt}.md {result}.md 900 /c/Users/mianc/VibeCoding/zer0-agent-ci
+  {prompt}.md {result}.md 900 /c/Users/<user>/VibeCoding/zer0-agent-ci
 
 # Gemini SYNTHESIS REVIEW (no -y, no file writes)
 bash ~/.claude/tools/dispatch.sh gemini \

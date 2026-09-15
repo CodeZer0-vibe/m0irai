@@ -9,7 +9,7 @@ The **Agent Client Protocol (ACP)** is a JSON-RPC standard that allows a client 
 
 ## 2. gemini/agy
 
-The Google Antigravity CLI (`agy`) natively supports conversation resume via `--continue`, `/resume`, or `/conversation <id>` [Source: file:///C:/Users/mianc/.gemini/antigravity-cli/builtin/skills/antigravity_guide/reference
+The Google Antigravity CLI (`agy`) natively supports conversation resume via `--continue`, `/resume`, or `/conversation <id>` [Source: file:///C:/Users/<user>/.gemini/antigravity-cli/builtin/skills/antigravity_guide/reference
 <truncated 3299 bytes>
 codex attempt to update the shared file concurrently, overwriting each other's progress. *Prevention:* zer0 acts as a mutex lock or the sole writer of the shared state.
 *   **Context Rot:** An agent's long-lived session becomes so bloated it ignores new instructions. *Prevention:* Bound the lifespan of native sessions. Kill and restart them when shifting to a new major task.

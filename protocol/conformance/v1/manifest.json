@@ -1,0 +1,545 @@
+{
+  "formatVersion": 1,
+  "protocol": "zer0.room",
+  "version": 1,
+  "limits": {
+    "frameBytesIncludingLf": 1048576,
+    "chunkTextUtf8Bytes": 32768,
+    "maxSafeInteger": 9007199254740991
+  },
+  "cases": [
+    {
+      "id": "frame-exact-limit",
+      "file": "frame-exact-limit.bin",
+      "kind": "frame",
+      "byteLength": 1048576,
+      "sha256": "2d11ee1328f7fab0ee1a9248c16ba612be8836b07378b3b874d3b00657cb8731",
+      "expect": {
+        "valid": true,
+        "reason": "maximum total frame is accepted"
+      }
+    },
+    {
+      "id": "frame-over-limit",
+      "file": "frame-over-limit.bin",
+      "kind": "frame",
+      "byteLength": 1048577,
+      "sha256": "3ae2054b7fdcab0dde0c181f9159e95e59415daf81ac1a57b92f78b57337c0be",
+      "expect": {
+        "valid": false,
+        "reason": "frame including LF exceeds cap"
+      }
+    },
+    {
+      "id": "invalid-utf8",
+      "file": "invalid-utf8.bin",
+      "kind": "frame",
+      "byteLength": 8,
+      "sha256": "f08e8318624fd9211bf8dbc4b95445070ee1a8bedb67bfb628b0e6de94133ec7",
+      "expect": {
+        "valid": false,
+        "reason": "strict UTF-8 rejects replacement decoding"
+      }
+    },
+    {
+      "id": "string-id",
+      "file": "string-id.bin",
+      "kind": "request",
+      "byteLength": 56,
+      "sha256": "10a810cccdfac46631fed0b7aab1708dfb7ba244079b2c8cea0793c51e4b5e8d",
+      "expect": {
+        "valid": true,
+        "reason": "string ID"
+      }
+    },
+    {
+      "id": "max-safe-id",
+      "file": "max-safe-id.bin",
+      "kind": "request",
+      "byteLength": 68,
+      "sha256": "dba5780dc6d0c02fcf60914e81e8716ddb3c234525c95d642935a32d3a9b42bf",
+      "expect": {
+        "valid": true,
+        "reason": "safe numeric ID"
+      }
+    },
+    {
+      "id": "unsafe-id",
+      "file": "unsafe-id.bin",
+      "kind": "request",
+      "byteLength": 68,
+      "sha256": "ab58b105ac3ce36a50490176b525230242cfefc31c904583f7acfd3fd032788a",
+      "expect": {
+        "valid": false,
+        "reason": "unsafe numeric ID"
+      }
+    },
+    {
+      "id": "fractional-id",
+      "file": "fractional-id.bin",
+      "kind": "request",
+      "byteLength": 55,
+      "sha256": "b6b480f3b46153e0f9692028894e4b045155ac036f0749902af0831224a8f7ad",
+      "expect": {
+        "valid": false,
+        "reason": "fractional numeric ID"
+      }
+    },
+    {
+      "id": "request-extra",
+      "file": "request-extra.bin",
+      "kind": "request",
+      "byteLength": 66,
+      "sha256": "887ba875bad84b248332d11f02a56f3a53058d1049093b70e5abb1383d56f29f",
+      "expect": {
+        "valid": false,
+        "reason": "unknown request field"
+      }
+    },
+    {
+      "id": "notification-extra",
+      "file": "notification-extra.bin",
+      "kind": "notification",
+      "byteLength": 254,
+      "sha256": "fdeabbb193bcb5dd742370abfced9c0cf06e0221309c32c70edc7058a108b7a3",
+      "expect": {
+        "valid": false,
+        "reason": "unknown notification field"
+      }
+    },
+    {
+      "id": "success-null",
+      "file": "success-null.bin",
+      "kind": "response",
+      "byteLength": 41,
+      "sha256": "c896ce3bf641fa674add09d376cd57b1ff48161a82fe20d35c916f25c9aa1ec2",
+      "expect": {
+        "valid": true,
+        "reason": "generic null success"
+      }
+    },
+    {
+      "id": "missing-result",
+      "file": "missing-result.bin",
+      "kind": "response",
+      "byteLength": 27,
+      "sha256": "685599fb59e58505092c10b47c56c636daeb77015fa771bf2205eec4f3e1af5c",
+      "expect": {
+        "valid": false,
+        "reason": "success requires result"
+      }
+    },
+    {
+      "id": "both-result-error",
+      "file": "both-result-error.bin",
+      "kind": "response",
+      "byteLength": 74,
+      "sha256": "947fae63a09ef9f137052f1a653d15cc4fd3c648015c0cbe2a26f52904914a5e",
+      "expect": {
+        "valid": false,
+        "reason": "response has both arms"
+      }
+    },
+    {
+      "id": "chunk-ascii-max",
+      "file": "chunk-ascii-max.bin",
+      "kind": "event",
+      "byteLength": 33054,
+      "sha256": "89dbb8bfd91ef599f15a475429fdaa9ba35f84e0ada5c620e2ccdbeaf3199f3c",
+      "expect": {
+        "valid": true,
+        "reason": "32KiB ASCII"
+      }
+    },
+    {
+      "id": "chunk-ascii-over",
+      "file": "chunk-ascii-over.bin",
+      "kind": "event",
+      "byteLength": 33055,
+      "sha256": "d2ec3d5aa3542bda6f369c5df17ac8d05934faff10a4ffc69b1ee3e45d7d5cbc",
+      "expect": {
+        "valid": false,
+        "reason": "chunk text too large"
+      }
+    },
+    {
+      "id": "chunk-emoji-max",
+      "file": "chunk-emoji-max.bin",
+      "kind": "event",
+      "byteLength": 33054,
+      "sha256": "af1fe86cea7aaa68d542a4b7a7ac485bf0e580e9744bbc46c5d2488ef5f0a40c",
+      "expect": {
+        "valid": true,
+        "reason": "32KiB emoji"
+      }
+    },
+    {
+      "id": "chunk-emoji-over",
+      "file": "chunk-emoji-over.bin",
+      "kind": "event",
+      "byteLength": 33058,
+      "sha256": "866534677b6c2d23ad5c71ec32c16fb62b44269c9197c1f3196183f3a9c6e09f",
+      "expect": {
+        "valid": false,
+        "reason": "emoji bytes too large"
+      }
+    },
+    {
+      "id": "chunk-index-max",
+      "file": "chunk-index-max.bin",
+      "kind": "event",
+      "byteLength": 302,
+      "sha256": "3d9a7c849db7313086c775206e340cd0e58317bad50734373edcf287ba80ceff",
+      "expect": {
+        "valid": true,
+        "reason": "safe chunk index"
+      }
+    },
+    {
+      "id": "chunk-index-over",
+      "file": "chunk-index-over.bin",
+      "kind": "event",
+      "byteLength": 302,
+      "sha256": "c403bc02963eaa8a799b4358aeaba4c5fece159128d8259099f971d389164f35",
+      "expect": {
+        "valid": false,
+        "reason": "unsafe chunk index"
+      }
+    },
+    {
+      "id": "activity-known",
+      "file": "activity-known.bin",
+      "kind": "event",
+      "byteLength": 251,
+      "sha256": "ced3f33d2732adfec34e888ff55eaa3f22b57021838da7b9be25333140a9adc3",
+      "expect": {
+        "valid": true,
+        "reason": "known activity"
+      }
+    },
+    {
+      "id": "activity-unknown",
+      "file": "activity-unknown.bin",
+      "kind": "event",
+      "byteLength": 247,
+      "sha256": "7c038a317117563e67e02c8a515634cd6416fd4d6ac62b49e48d54dc1495ae0c",
+      "expect": {
+        "valid": false,
+        "reason": "unknown wire activity"
+      }
+    },
+    {
+      "id": "agent-status-valid",
+      "file": "agent-status-valid.bin",
+      "kind": "event",
+      "byteLength": 394,
+      "sha256": "723ddb5b5c4921427ebade546352402338e5cbeb1d4116f6026ca1aa8f24eea9",
+      "expect": {
+        "valid": true,
+        "reason": "bounded provider status snapshot"
+      }
+    },
+    {
+      "id": "agent-status-empty",
+      "file": "agent-status-empty.bin",
+      "kind": "event",
+      "byteLength": 200,
+      "sha256": "a085998b3d194559d7dd1610356ec41c939a01ce7a771631e3fc3de059dec6a1",
+      "expect": {
+        "valid": false,
+        "reason": "status requires at least one reported channel"
+      }
+    },
+    {
+      "id": "agent-status-percent-over",
+      "file": "agent-status-percent-over.bin",
+      "kind": "event",
+      "byteLength": 249,
+      "sha256": "9901cbdd87548bf900512cc66ab78864f571bcb28a270c947b991aa9435448da",
+      "expect": {
+        "valid": false,
+        "reason": "usage percentages are bounded"
+      }
+    },
+    {
+      "id": "agent-status-fractional",
+      "file": "agent-status-fractional.bin",
+      "kind": "event",
+      "byteLength": 250,
+      "sha256": "b5760133af0897efd8b7ab38cf9a55cd026b0d1d14b68615ef96f82f1bdd737d",
+      "expect": {
+        "valid": false,
+        "reason": "usage percentages are integers"
+      }
+    },
+    {
+      "id": "agent-status-unsafe-reset",
+      "file": "agent-status-unsafe-reset.bin",
+      "kind": "event",
+      "byteLength": 267,
+      "sha256": "8b990f205e252f7c24f13a2e980ec126f8a089d38e74905d426addabdc805621",
+      "expect": {
+        "valid": false,
+        "reason": "status reset timestamps are safe integers"
+      }
+    },
+    {
+      "id": "agent-status-unknown",
+      "file": "agent-status-unknown.bin",
+      "kind": "event",
+      "byteLength": 252,
+      "sha256": "619decfd63f943375d0e14e5ac7b7195d07e0bc9c5932365dc6292139b9a23c8",
+      "expect": {
+        "valid": false,
+        "reason": "raw diagnostic samples never enter room status"
+      }
+    },
+    {
+      "id": "agent-mode-valid",
+      "file": "agent-mode-valid.bin",
+      "kind": "event",
+      "byteLength": 311,
+      "sha256": "52e5ec64f2158156ec975e43921ffb9cf6e1125f6760eeaaf289d9989f1b0628",
+      "expect": {
+        "valid": true,
+        "reason": "bounded native mode state"
+      }
+    },
+    {
+      "id": "agent-mode-unknown",
+      "file": "agent-mode-unknown.bin",
+      "kind": "event",
+      "byteLength": 259,
+      "sha256": "8c6decb33156dd0a72a89a464e53f83c3ea23ab7ccdb3c08315477c84a3e42d5",
+      "expect": {
+        "valid": false,
+        "reason": "mode state rejects unknown fields"
+      }
+    },
+    {
+      "id": "hop-max-valid",
+      "file": "hop-max-valid.bin",
+      "kind": "event",
+      "byteLength": 317,
+      "sha256": "3b9a9bdeca9e78a2533fd42c891c8bb18a7ad6bb53162519fa1c920296a5b1fb",
+      "expect": {
+        "valid": true,
+        "reason": "strict modern hop payload"
+      }
+    },
+    {
+      "id": "hop-both-budget-names",
+      "file": "hop-both-budget-names.bin",
+      "kind": "event",
+      "byteLength": 331,
+      "sha256": "2016c13dffea1f189dd12285573419a1e232e19e5870c4519bb8218d82f7f4b5",
+      "expect": {
+        "valid": false,
+        "reason": "hop budget field is unambiguous"
+      }
+    },
+    {
+      "id": "event-invalid-calendar-date",
+      "file": "event-invalid-calendar-date.bin",
+      "kind": "event",
+      "byteLength": 187,
+      "sha256": "64a47c3f631dd9bdea17870c8b4a6334a4655ba4959d5d10ba4b24f221865aee",
+      "expect": {
+        "valid": false,
+        "reason": "calendar dates are RFC3339-valid in every runtime"
+      }
+    },
+    {
+      "id": "backend-empty",
+      "file": "backend-empty.bin",
+      "kind": "event",
+      "byteLength": 187,
+      "sha256": "91ef016cdccde2f86f5f75723335a839b6b15de7a05ca54a2514820596d8dc58",
+      "expect": {
+        "valid": true,
+        "reason": "backend.failed shape"
+      }
+    },
+    {
+      "id": "backend-message",
+      "file": "backend-message.bin",
+      "kind": "event",
+      "byteLength": 200,
+      "sha256": "c3993fd656cc3313ad7bd9a9ea4440e791ac6bc0a08f0fc28338ef2bc0e12629",
+      "expect": {
+        "valid": true,
+        "reason": "backend.failed shape"
+      }
+    },
+    {
+      "id": "backend-error",
+      "file": "backend-error.bin",
+      "kind": "event",
+      "byteLength": 198,
+      "sha256": "a460d81e8723406d00cf5c061a877db41bce39bfbe6b7f49e7b4d8eb76380be5",
+      "expect": {
+        "valid": true,
+        "reason": "backend.failed shape"
+      }
+    },
+    {
+      "id": "backend-unknown",
+      "file": "backend-unknown.bin",
+      "kind": "event",
+      "byteLength": 198,
+      "sha256": "38da711fc366917ca29c0a2bbb0796421d11212c170b9d54c05261de55d2ae96",
+      "expect": {
+        "valid": false,
+        "reason": "backend.failed shape"
+      }
+    },
+    {
+      "id": "backend-empty-field",
+      "file": "backend-empty-field.bin",
+      "kind": "event",
+      "byteLength": 199,
+      "sha256": "bfc3692dfa141f99197c7e61f7241a74e12dd44cb382e834ff984aa64cee0fdf",
+      "expect": {
+        "valid": false,
+        "reason": "backend.failed shape"
+      }
+    },
+    {
+      "id": "notice-valid",
+      "file": "notice-valid.bin",
+      "kind": "event",
+      "byteLength": 287,
+      "sha256": "d2c5581ccdc0d8e3b15c4f49d3b7251d1ad90807bd841ccb3f325d3947ecd506",
+      "expect": {
+        "valid": true,
+        "reason": "room.notice shape"
+      }
+    },
+    {
+      "id": "notice-unknown-cause",
+      "file": "notice-unknown-cause.bin",
+      "kind": "event",
+      "byteLength": 244,
+      "sha256": "9192fbb9224ae6dded86547ce706e8fcbea7ca34fdc3648be1c3080f5cd21753",
+      "expect": {
+        "valid": true,
+        "reason": "unknown room.notice cause still validates"
+      }
+    },
+    {
+      "id": "notice-missing-detail",
+      "file": "notice-missing-detail.bin",
+      "kind": "event",
+      "byteLength": 215,
+      "sha256": "ac428c02f0d0ca76b79c627cc6611fbd09322e9475a558eeb67ff82e0be06455",
+      "expect": {
+        "valid": false,
+        "reason": "room.notice requires detail"
+      }
+    },
+    {
+      "id": "notice-detail-over",
+      "file": "notice-detail-over.bin",
+      "kind": "event",
+      "byteLength": 428,
+      "sha256": "6900d5d0f0ab6f55646a000f34e934e4ee95de1c4b3493484a01784e0477ecf3",
+      "expect": {
+        "valid": false,
+        "reason": "room.notice detail exceeds 200 code points"
+      }
+    },
+    {
+      "id": "notice-detail-max",
+      "file": "notice-detail-max.bin",
+      "kind": "event",
+      "byteLength": 1027,
+      "sha256": "ac16bb489c0c2f52331344657e3ad7f4e58fbc0769436a9822e4989435479e14",
+      "expect": {
+        "valid": true,
+        "reason": "200 astral code points is exactly the bound"
+      }
+    },
+    {
+      "id": "resync-null",
+      "file": "resync-null.bin",
+      "kind": "trace",
+      "byteLength": 53,
+      "sha256": "ceca5964d369e4cfbb1b162c0d3254ad4e70d0c8f6a4832c290404c71fe9ba93",
+      "expect": {
+        "valid": false,
+        "reason": "resync result null is not {events:[...]}"
+      }
+    },
+    {
+      "id": "trace-identical-duplicate",
+      "file": "trace-identical-duplicate.bin",
+      "kind": "trace",
+      "byteLength": 374,
+      "sha256": "c636e65525410a58c243f4c32ade31554496dc5ef467b906c4b8febeb29f4fe9",
+      "expect": {
+        "valid": true,
+        "reason": "identical replay duplicate is a reducer no-op",
+        "steps": [
+          {
+            "line": 1,
+            "expect": "apply"
+          },
+          {
+            "line": 2,
+            "expect": "no-op"
+          }
+        ]
+      }
+    },
+    {
+      "id": "trace-conflicting-duplicate",
+      "file": "trace-conflicting-duplicate.bin",
+      "kind": "trace",
+      "byteLength": 393,
+      "sha256": "475200a335bc7c2430ee2800eeb10b108c768e8c2d142cebbb35cfadd151d8bd",
+      "expect": {
+        "valid": false,
+        "reason": "same eventId with differing content is fatal",
+        "steps": [
+          {
+            "line": 1,
+            "expect": "apply"
+          },
+          {
+            "line": 2,
+            "expect": "fatal-conflict"
+          }
+        ]
+      }
+    },
+    {
+      "id": "trace-gap-resync-repeat",
+      "file": "trace-gap-resync-repeat.bin",
+      "kind": "trace",
+      "byteLength": 748,
+      "sha256": "45b38f00a9832dd7e6e15a33c2ec92b7f2fbad064cc37e085b029690b3c0168f",
+      "expect": {
+        "valid": true,
+        "reason": "global gap buffers event and replay repeats it once",
+        "steps": [
+          {
+            "line": 1,
+            "expect": "apply"
+          },
+          {
+            "line": 2,
+            "expect": "request-resync-after-1-buffer"
+          },
+          {
+            "line": 3,
+            "expect": "apply"
+          },
+          {
+            "line": 4,
+            "expect": "merge-once-live"
+          }
+        ]
+      }
+    }
+  ]
+}

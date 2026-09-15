@@ -1,6 +1,6 @@
 # Turbocharging gemini-cli as a Team Member (2026-06-09, pre-Antigravity)
 
-Installed under test: `@google/gemini-cli` **0.45.2** (npm global, `C:/Users/mianc/AppData/Roaming/npm/node_modules/@google/gemini-cli`). npm dist-tags at research time: latest `0.46.0`, preview `0.47.0-preview.0`, nightly `0.47.0-nightly.20260609`.
+Installed under test: `@google/gemini-cli` **0.45.2** (npm global, `C:/Users/<user>/AppData/Roaming/npm/node_modules/@google/gemini-cli`). npm dist-tags at research time: latest `0.46.0`, preview `0.47.0-preview.0`, nightly `0.47.0-nightly.20260609`.
 Local config schema is already the new nested v2 form (`~/.gemini/settings.json`: `context.fileName: ["GEMINI.md","AGENTS.md"]`, `general.defaultApprovalMode: "default"`, `model.name: "gemini-2.5-pro"`).
 
 Truth hierarchy used: installed bundle source (`bundle/chunk-25BU7OMU.js`) > repo docs (raw.githubusercontent / github.com main) > official Google blog/Antigravity docs > community. Each claim marked VERIFIED / UNVERIFIED.

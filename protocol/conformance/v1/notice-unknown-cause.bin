@@ -1,0 +1,1 @@
+{"protocol":"zer0.room","version":1,"sessionId":"chat-test","eventSeq":"1","eventId":"event-1","turnId":"turn-1","occurredAt":"2026-01-01T00:00:00Z","type":"room.notice","payload":{"cause":"some-future-condition","detail":"from a newer host"}}

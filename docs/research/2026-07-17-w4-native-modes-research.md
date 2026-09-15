@@ -2,7 +2,7 @@
 
 **Model self-state:** Sonnet 5 (claude-sonnet-5), research lane, read-only on the repo. Wrote exactly this one file.
 
-**Repo checked:** `C:\Users\mianc\VibeCoding\zer0-agent-ci` (read-only). No files touched there.
+**Repo checked:** `C:\Users\<user>\VibeCoding\zer0-agent-ci` (read-only). No files touched there.
 
 ---
 

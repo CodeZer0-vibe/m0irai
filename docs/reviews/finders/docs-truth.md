@@ -170,7 +170,7 @@ $ grep -rn "from \"[^\"]*observability" src/chat/ --include=*.ts
 src/chat/evidence-ledger-gate.test.ts:23:import { inspectRun } from "../observability/inspect.js";
 
 $ ls -la src/chat/evidence-ledger-gate*
--rw-r--r-- 1 mianc 197609 15978 Jul 31 23:47 src/chat/evidence-ledger-gate.test.ts
+-rw-r--r-- 1 <user> 197609 15978 Jul 31 23:47 src/chat/evidence-ledger-gate.test.ts
    ← the .test.ts exists; src/chat/evidence-ledger-gate.ts does NOT
 ```
 Every production importer of `observability/` is in `src/cli/commands/` (7 files) or `src/temporal/activities/` (7 files) — both banned by P4. The chain that pulls the other 9 is `src/observability/inspect.ts:17,18,19` (`./schemas/index.js`, `./with-meta.js`).

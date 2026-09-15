@@ -353,7 +353,8 @@ async function capturedClaudeUpdates(): Promise<unknown[]> {
     import.meta.dirname,
     "..",
     "..",
-    ".council",
+    "tests",
+    "fixtures",
     "probe-claude-acp-updates.jsonl",
   );
   const lines = (await readFile(fixture, "utf8")).split(/\r?\n/).filter(Boolean);

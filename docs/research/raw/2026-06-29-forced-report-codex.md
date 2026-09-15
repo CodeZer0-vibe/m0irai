@@ -103,7 +103,7 @@ Feasible, but adapter variance is the trap.
 
 ACP officially has `session/new`, optional `session/load`, `session/prompt`, streaming `session/update`, and `session/cancel` in the normal flow. ([agentclientprotocol.com](https://agentclientprotocol.com/protocol/v1/overview?utm_source=openai)) The spec says clients must check `loadSession` support before calling `session/load`. ([agentclientprotocol.com](https://agentclientprotocol.com/protocol/v1/session-setup?utm_source=openai)) ACP updates also say `session/resume` stabilized in April 2026, which matters for reconnecting without replaying history. ([agentclientprotocol.com](https://agentclientprotocol.com/updates?utm_source=openai))
 
-Local repo reality: current `dispatch-acp.ts` says ACP is default for claude/codex, gemini is not ACP, and “Session reuse is next” in the file header/comments. [dispatch-acp.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/chat/dispatch-acp.ts:3) So this is not just flipping a flag.
+Local repo reality: current `dispatch-acp.ts` says ACP is default for claude/codex, gemini is not ACP, and “Session reuse is next” in the file header/comments. [dispatch-acp.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/chat/dispatch-acp.ts:3) So this is not just flipping a flag.
 
 Build it as `NativeSessionHandle`:
 - `agent`

@@ -1,6 +1,6 @@
 # zer0 native per-agent session continuity
 
-Repo: C:UsersmiancVibeCodingzer0-agent-ci
+Repo: C:Users<user>VibeCodingzer0-agent-ci
 
 ## Per-turn invocation
 

@@ -1,16 +1,16 @@
 Documenting: **Codex CLI**.
 
-Verified against installed `codex-cli 0.142.2` on this Windows machine, local files under `C:\Users\mianc\.codex`, and official OpenAI docs.
+Verified against installed `codex-cli 0.142.2` on this Windows machine, local files under `C:\Users\<user>\.codex`, and official OpenAI docs.
 
 ## 1. Session/conversation persistence
 
 Codex persists local sessions as JSONL rollout files under:
 
-`C:\Users\mianc\.codex\sessions\YYYY\MM\DD\rollout-<timestamp>-<session_id>.jsonl`
+`C:\Users\<user>\.codex\sessions\YYYY\MM\DD\rollout-<timestamp>-<session_id>.jsonl`
 
 Example observed:
 
-`C:\Users\mianc\.codex\sessions\2026\06\29\rollout-2026-06-29T19-35-40-019f143c-8d3d-7aa2-a251-62bbdc2322ea.jsonl`
+`C:\Users\<user>\.codex\sessions\2026\06\29\rollout-2026-06-29T19-35-40-019f143c-8d3d-7aa2-a251-62bbdc2322ea.jsonl`
 
 Observed JSONL event types in that transcript:
 
@@ -38,9 +38,9 @@ Observed saved data includes:
 
 Also observed:
 
-- `C:\Users\mianc\.codex\session_index.jsonl` contains session ids, thread names, and `updated_at` timestamps.
-- `C:\Users\mianc\.codex\history.jsonl` contains prompt-history style entries with `session_id`, `ts`, and `text`.
-- `C:\Users\mianc\.codex\logs_2.sqlite`, `state_5.sqlite`, `goals_1.sqlite`, and `memories_1.sqlite` exist, but SQLite schema inspection was not possible because `sqlite3` is unavailable in this environment.
+- `C:\Users\<user>\.codex\session_index.jsonl` contains session ids, thread names, and `updated_at` timestamps.
+- `C:\Users\<user>\.codex\history.jsonl` contains prompt-history style entries with `session_id`, `ts`, and `text`.
+- `C:\Users\<user>\.codex\logs_2.sqlite`, `state_5.sqlite`, `goals_1.sqlite`, and `memories_1.sqlite` exist, but SQLite schema inspection was not possible because `sqlite3` is unavailable in this environment.
 
 Filesystem state is **not** saved as a snapshot. The transcript records actions and outputs. Actual files live in the working tree. If files changed last time, a future session learns that from the current filesystem/git state, the saved conversation, memory, or explicit instructions, not from a native filesystem snapshot.
 
@@ -93,13 +93,13 @@ Documented behavior:
 
 Observed on this machine:
 
-- global: `C:\Users\mianc\.codex\AGENTS.md`
-- repo: `C:\Users\mianc\VibeCoding\zer0-agent-ci\AGENTS.md`
+- global: `C:\Users\<user>\.codex\AGENTS.md`
+- repo: `C:\Users\<user>\VibeCoding\zer0-agent-ci\AGENTS.md`
 
 Config layering:
 
-- user config: `~/.codex/config.toml`, observed as `C:\Users\mianc\.codex\config.toml`
-- project config: `.codex/config.toml`, observed as `C:\Users\mianc\VibeCoding\zer0-agent-ci\.codex\config.toml`
+- user config: `~/.codex/config.toml`, observed as `C:\Users\<user>\.codex\config.toml`
+- project config: `.codex/config.toml`, observed as `C:\Users\<user>\VibeCoding\zer0-agent-ci\.codex\config.toml`
 - project config loads only when the project is trusted
 - profiles live as `$CODEX_HOME/<profile>.config.toml` and are selected with `--profile`
 
@@ -178,12 +178,12 @@ Documented controls:
 
 Observed on this machine:
 
-- `C:\Users\mianc\.codex\memories_1.sqlite`
-- `C:\Users\mianc\.codex\memories\MEMORY.md`
-- `C:\Users\mianc\.codex\memories\memory_summary.md`
-- `C:\Users\mianc\.codex\memories\raw_memories.md`
-- rollout summary files under `C:\Users\mianc\.codex\memories\rollout_summaries\...`
-- ad hoc extension notes under `C:\Users\mianc\.codex\memories\extensions\ad_hoc\notes\...`
+- `C:\Users\<user>\.codex\memories_1.sqlite`
+- `C:\Users\<user>\.codex\memories\MEMORY.md`
+- `C:\Users\<user>\.codex\memories\memory_summary.md`
+- `C:\Users\<user>\.codex\memories\raw_memories.md`
+- rollout summary files under `C:\Users\<user>\.codex\memories\rollout_summaries\...`
+- ad hoc extension notes under `C:\Users\<user>\.codex\memories\extensions\ad_hoc\notes\...`
 
 In this repo’s project config, `features.memories = true`.
 

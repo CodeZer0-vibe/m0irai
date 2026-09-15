@@ -10,7 +10,7 @@ Distinction that runs through this whole doc: the **Claude Code CLI** has its _o
 
 **Where.** Transcripts are JSONL, one file per session:
 `~/.claude/projects/<project-slug>/<session-id>.jsonl`
-where `<project-slug>` is "your working directory path with non-alphanumeric characters replaced by `-`" — source: <https://code.claude.com/docs/en/sessions>. `[GT]` On this machine: `~/.claude/projects/C--Users-mianc-VibeCoding-TeamWork/` holds session files named by UUID, e.g. `0220166f-228c-4a7d-b000-7b333ab1c482.jsonl` (130 MB — transcripts grow unbounded within a session) down to 119-byte stubs.
+where `<project-slug>` is "your working directory path with non-alphanumeric characters replaced by `-`" — source: <https://code.claude.com/docs/en/sessions>. `[GT]` On this machine: `~/.claude/projects/C--Users-<user>-VibeCoding-TeamWork/` holds session files named by UUID, e.g. `0220166f-228c-4a7d-b000-7b333ab1c482.jsonl` (130 MB — transcripts grow unbounded within a session) down to 119-byte stubs.
 
 **Write cadence.** "Sessions are saved continuously to local transcript files as you work… As the session runs, it appends every message, tool call, and result to a transcript file on disk." — <https://code.claude.com/docs/en/sessions>. Append-only event log.
 
@@ -179,7 +179,7 @@ Source: <https://code.claude.com/docs/en/checkpointing>. This is Claude Code's *
 
 Source: <https://code.claude.com/docs/en/memory>. **Auto memory** is a real, on-by-default feature (requires v2.1.59+; this machine 2.1.195 `[GT]`).
 
-- **Path:** `~/.claude/projects/<project>/memory/`, with `MEMORY.md` as the loaded index + arbitrary topic files. `<project>` is **derived from the git repo root**, so "all worktrees and subdirectories within the same repo share one auto memory directory." `[GT]` **Confirmed populated on this machine** at `~/.claude/projects/C--Users-mianc-VibeCoding-TeamWork/memory/` (holds the operator's `feedback_*.md`, `project_*.md` files). The operator's custom memory protocol is writing into Claude Code's _native_ auto-memory store.
+- **Path:** `~/.claude/projects/<project>/memory/`, with `MEMORY.md` as the loaded index + arbitrary topic files. `<project>` is **derived from the git repo root**, so "all worktrees and subdirectories within the same repo share one auto memory directory." `[GT]` **Confirmed populated on this machine** at `~/.claude/projects/C--Users-<user>-VibeCoding-TeamWork/memory/` (holds the operator's `feedback_*.md`, `project_*.md` files). The operator's custom memory protocol is writing into Claude Code's _native_ auto-memory store.
 - **Load rule:** "The first 200 lines of `MEMORY.md`, or the first 25KB, whichever comes first, are loaded at the start of every conversation." Topic files are **not** loaded at startup — read on demand. This 200-line/25KB cap applies **only to MEMORY.md** (CLAUDE.md loads in full).
 - **Who writes it:** Claude, autonomously — "Claude doesn't save something every session. It decides what's worth remembering." When you say "remember X," it goes to auto-memory (say "add this to CLAUDE.md" to target CLAUDE.md instead).
 - **Knobs:** `autoMemoryEnabled:false` or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` to disable; `autoMemoryDirectory` (abs path or `~/`) to relocate (honored only after workspace-trust accept). **Machine-local; not shared across machines/cloud.** Subagents can keep their own auto-memory (`/en/sub-agents#enable-persistent-memory`).

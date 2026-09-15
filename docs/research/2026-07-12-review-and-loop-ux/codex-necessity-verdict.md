@@ -14,15 +14,15 @@ The strongest argument against diff review is real: non-coders cannot reliably j
 
 Aider and Replit prove a shippable trust model can be **apply first, then undo**. Replit explicitly bets on checkpoints and rollback for non-coders, while Lovable moves review to the outcome layer: “what does it do now,” not “what lines changed.”
 
-So if “diff review” means “make the operator read patches,” kill it. That surface will be ignored, and worse, it will train reflexive approval. The existing full-screen UI already shows why: hidden navigation, no useful operator language, raw binary noise, and internal “force-agent-to-chunk” copy at [diff-review-model.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/tui/diff-review-model.ts:499).
+So if “diff review” means “make the operator read patches,” kill it. That surface will be ignored, and worse, it will train reflexive approval. The existing full-screen UI already shows why: hidden navigation, no useful operator language, raw binary noise, and internal “force-agent-to-chunk” copy at [diff-review-model.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/tui/diff-review-model.ts:499).
 
 ## Steelman For
 
 The strongest argument for keeping a review moment is also real: zer0 is a **control tower**, not a background code generator. The operator’s job is not to parse code, but to approve, undo, redirect, and stop dangerous work.
 
-The data does not say “remove control.” Cursor/Windsurf users revolt when accept/reject disappears. Human review comments on AI PRs are disproportionately steering commands, and zer0 already has the steering loop: `enqueueRedirect`, delivery, recovery, resend/cancel, and repair state at [review-redirect.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/chat/review-redirect.ts:152) and [review-redirect-delivery.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/chat/review-redirect-delivery.ts:202).
+The data does not say “remove control.” Cursor/Windsurf users revolt when accept/reject disappears. Human review comments on AI PRs are disproportionately steering commands, and zer0 already has the steering loop: `enqueueRedirect`, delivery, recovery, resend/cancel, and repair state at [review-redirect.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/chat/review-redirect.ts:152) and [review-redirect-delivery.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/chat/review-redirect-delivery.ts:202).
 
-The code also has real apply/undo machinery. Keep is a DB decision over bytes already on disk at [diff-apply.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/chat/diff-apply.ts:62). Reject/rollback are hash-guarded and conflict-aware at [diff-apply-rollback.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/chat/diff-apply-rollback.ts:457). Pending unresolved reviews are queryable at [diff-review-read.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/chat/diff-review-read.ts:25). That is valuable machinery.
+The code also has real apply/undo machinery. Keep is a DB decision over bytes already on disk at [diff-apply.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/chat/diff-apply.ts:62). Reject/rollback are hash-guarded and conflict-aware at [diff-apply-rollback.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/chat/diff-apply-rollback.ts:457). Pending unresolved reviews are queryable at [diff-review-read.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/chat/diff-review-read.ts:25). That is valuable machinery.
 
 ## Verdict On Need
 
@@ -35,7 +35,7 @@ The code also has real apply/undo machinery. Keep is a DB decision over bytes al
 | One-key undo | Essential | This is the trust engine for apply-then-keep/undo. |
 | Steer/comment button | Essential | This is how humans actually review agents: “fix this / redo that.” |
 | Risk signals | Essential | The card must counter false confidence, not reassure. |
-| Hard risk stops | Essential but not fully present | Current risk tags exist, but approve-disabled only covers unattributed combined writes at [diff-review-scale.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/tui/diff-review-scale.ts:88). Package/schema/delete/deploy stops still need real policy. |
+| Hard risk stops | Essential but not fully present | Current risk tags exist, but approve-disabled only covers unattributed combined writes at [diff-review-scale.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/tui/diff-review-scale.ts:88). Package/schema/delete/deploy stops still need real policy. |
 | Full-screen view | Keep as fallback | Use for large/complex inspection, not default. |
 | Outcome testing | Needed adjacent layer | For a non-coder, “run it and see” is often more honest than diff reading. |
 
@@ -43,7 +43,7 @@ The code also has real apply/undo machinery. Keep is a DB decision over bytes al
 
 Probability the redesigned inline surface gets used by this operator: **60-70% if it is a compact control card**. Probability the operator reads actual diff lines regularly: **under 20%**. Probability the current full-screen review becomes ignored after novelty: **high, around 80%**.
 
-It can work because zer0 already has the hard parts: capture/checkpointing, persisted review rows, grouped/ranked review trees, undo, pending review recall, and redirect/repair. The main code risk is not the engine; it is identity and focus. Today `ReviewModelState` does not carry `reviewId`, and the decision hook separately tracks the latest `review.ready`, which is race-prone in multi-agent completion at [use-review-decisions.ts](C:/Users/mianc/VibeCoding/zer0-agent-ci/src/tui/use-review-decisions.ts:18). The inline card must be id-bearing.
+It can work because zer0 already has the hard parts: capture/checkpointing, persisted review rows, grouped/ranked review trees, undo, pending review recall, and redirect/repair. The main code risk is not the engine; it is identity and focus. Today `ReviewModelState` does not carry `reviewId`, and the decision hook separately tracks the latest `review.ready`, which is race-prone in multi-agent completion at [use-review-decisions.ts](C:/Users/<user>/VibeCoding/zer0-agent-ci/src/tui/use-review-decisions.ts:18). The inline card must be id-bearing.
 
 ## Failure Modes
 

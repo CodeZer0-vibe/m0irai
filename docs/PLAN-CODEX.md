@@ -570,9 +570,9 @@ Vite + React control plane. Build a REAL app. Fix every issue.
 codex
 I’ll use `implementation-planning` for the execution blueprint, with `cto-vibe-collaboration` as the framing lens because this is an outcome-first build plan that needs concrete engineering decisions, not a restatement of the spec.
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw C:\\Users\\mianc\\.codex\\skills\\implementation-planning\\SKILL.md" in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw C:\\Users\\<user>\\.codex\\skills\\implementation-planning\\SKILL.md" in C:\Users\<user>\VibeCoding\TeamWork
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw C:\\Users\\mianc\\.codex\\skills\\cto-vibe-collaboration\\SKILL.md" in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw C:\\Users\\<user>\\.codex\\skills\\cto-vibe-collaboration\\SKILL.md" in C:\Users\<user>\VibeCoding\TeamWork
  succeeded in 468ms:
 ---
 name: implementation-planning
@@ -681,9 +681,9 @@ At line:1 char:1
 codex
 I’ve got the planning workflow loaded. I’m going to ground the blueprint in the repo shape just enough to avoid naming fantasy paths, then I’ll produce the operational build plan as the deliverable.
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg --files' in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg --files' in C:\Users\<user>\VibeCoding\TeamWork
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-ChildItem -Force' in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-ChildItem -Force' in C:\Users\<user>\VibeCoding\TeamWork
  succeeded in 382ms:
 package-lock.json
 GEMINI.md
@@ -705,7 +705,7 @@ At line:1 char:1
  succeeded in 465ms:
 
 
-    Directory: C:\Users\mianc\VibeCoding\TeamWork
+    Directory: C:\Users\<user>\VibeCoding\TeamWork
 
 
 Mode                 LastWriteTime         Length Name                                                                                                                                       
@@ -732,13 +732,13 @@ At line:1 char:1
 codex
 The repo is currently documentation-heavy, not an implementation scaffold: plans/specs exist under `docs/`, with no `src/` yet. I’m checking those docs now so the blueprint aligns with the existing Zer0 vocabulary instead of inventing a second system.
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content -Raw AGENTS.md' in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content -Raw AGENTS.md' in C:\Users\<user>\VibeCoding\TeamWork
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw docs\\specs\\2026-05-02-agent-ci.md" in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw docs\\specs\\2026-05-02-agent-ci.md" in C:\Users\<user>\VibeCoding\TeamWork
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw docs\\plans\\2026-05-01-zer0-knights.md" in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw docs\\plans\\2026-05-01-zer0-knights.md" in C:\Users\<user>\VibeCoding\TeamWork
 exec
-"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw docs\\domain-context.md" in C:\Users\mianc\VibeCoding\TeamWork
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Raw docs\\domain-context.md" in C:\Users\<user>\VibeCoding\TeamWork
  succeeded in 526ms:
 # Project Context for Codex — TeamWork
 

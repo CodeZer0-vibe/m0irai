@@ -170,6 +170,6 @@ describe("writeAgyStatuslineSettings serializes and compare-swaps global setting
 describe("assertNoWhitespace (codex B1 — agy splits its command without a shell)", () => {
   it("throws on a whitespace path and passes on a clean one", () => {
     expect(() => assertNoWhitespace("C:/Users/First Last/emit.cjs", "p")).toThrow(/whitespace/i);
-    expect(() => assertNoWhitespace("C:/Users/mianc/emit.cjs", "p")).not.toThrow();
+    expect(() => assertNoWhitespace("C:/Users/<user>/emit.cjs", "p")).not.toThrow();
   });
 });

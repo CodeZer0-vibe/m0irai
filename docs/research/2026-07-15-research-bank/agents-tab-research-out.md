@@ -4,14 +4,14 @@ Ship **8 built-in configs**, not a large gallery. The strongest default set is: 
 The tab should present them as **per-message expert modes**, not “agents with jobs.” Copy should say “load this for this message” and each config should start from the user’s task, current repo, and standing files.
 
 **Local Findings**
-Spec: [docs/specs/2026-07-14-template-palette.md](C:/Users/mianc/VibeCoding/zer0-agent-ci/docs/specs/2026-07-14-template-palette.md:29) says this is a per-round overlay, file-based, sharp defaults, v1 per-message only. [AGENTS.md](C:/Users/mianc/VibeCoding/zer0-agent-ci/AGENTS.md:13) already forbids fixed job identities, so defaults must not reintroduce “Claude plans, Codex builds” as product law.
+Spec: [docs/specs/2026-07-14-template-palette.md](C:/Users/<user>/VibeCoding/zer0-agent-ci/docs/specs/2026-07-14-template-palette.md:29) says this is a per-round overlay, file-based, sharp defaults, v1 per-message only. [AGENTS.md](C:/Users/<user>/VibeCoding/zer0-agent-ci/AGENTS.md:13) already forbids fixed job identities, so defaults must not reintroduce “Claude plans, Codex builds” as product law.
 
 v23 files read: `architect`, `builder`, `planner`, `researcher`, `expert`, `skeptic`, `completeness-auditor`, `code-reviewer`, `wiring-auditor`, `security-auditor`, `ui-ux-auditor`, `finding-triage`.
 
 Best reusable patterns:
-- [planner.md](C:/Users/mianc/.claude/agents/planner.md:3): excellent trigger conditions, hardest-constraint-first, code-grounded plan.
-- [researcher.md](C:/Users/mianc/.claude/agents/researcher.md): excellent source hierarchy and “NOT FOUND beats guessing.”
-- [code-reviewer.md](C:/Users/mianc/.claude/agents/code-reviewer.md:44): excellent quote-before-claiming, false-positive discipline, confidence labels.
+- [planner.md](C:/Users/<user>/.claude/agents/planner.md:3): excellent trigger conditions, hardest-constraint-first, code-grounded plan.
+- [researcher.md](C:/Users/<user>/.claude/agents/researcher.md): excellent source hierarchy and “NOT FOUND beats guessing.”
+- [code-reviewer.md](C:/Users/<user>/.claude/agents/code-reviewer.md:44): excellent quote-before-claiming, false-positive discipline, confidence labels.
 - `completeness-auditor.md`, `wiring-auditor.md`, `security-auditor.md`, `ui-ux-auditor.md`: excellent because they target common AI failure modes with measurable proof.
 - `builder.md`: strong discipline, but over-fitted to BUILD BRIEF, `.council`, JSON reports, and TDD pipeline mechanics. Extract the discipline, not the whole file.
 - `skeptic.md` and `finding-triage.md`: useful internally, too pipeline-specific for default non-coder equipment.

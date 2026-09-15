@@ -3,7 +3,7 @@
 **Source:** github.com/openai/codex-plugin-cc @ commit `db52e28` (2026-07-07) · Apache-2.0
 (legal to reuse with attribution) · ~7,000 lines plugin source + ~2,900 test lines; ~90% of
 non-test source read. Operator-facing report (same findings, rendered):
-`C:\Users\mianc\.claude\jobs\20b1cbc2\tmp\codex-plugin-teardown.html`. Re-clone anytime — public.
+`C:\Users\<user>\.claude\jobs\20b1cbc2\tmp\codex-plugin-teardown.html`. Re-clone anytime — public.
 
 **What it is:** OpenAI's official plugin running Codex INSIDE Claude Code. Slash commands
 (`/codex:review`, `/codex:adversarial-review`, `/codex:rescue`, `/codex:transfer`,
