@@ -1,45 +1,58 @@
 # m0irai
 
-**Three of the best coding agents in the world, in one terminal, working the same repository at the same time.**
+**Three coding agents, Claude Code, Codex and Gemini, working in one terminal, on the same repo, at the same time.**
 
-You already use Claude, Codex and Gemini. But you use them one at a time — switching terminals, copy-pasting context from one to the next, re-explaining what you just told the other, translating each one's answer into the next one's prompt. You are the message bus. m0irai deletes that job.
+I kept using Claude, Codex and Gemini one at a time. I'd get an answer from one, paste it into the next, re-explain what I'd already said, then carry the result back again. I was the thing moving context between them. m0irai is me trying to delete that job.
 
-It's one room. You talk once. Claude, Codex and Gemini all hear it, each does the part it's actually best at, and their work is merged into a single answer — not three tabs you have to reconcile yourself.
+It's one room. You say something once, and all three agents hear it and see the same work. So instead of three tabs I have to reconcile in my head, they can actually work together: one builds, another reviews it, and when they disagree they can argue it out or go research it before anyone commits to the wrong thing.
 
-![m0irai — three minds, one thread](docs/demo.gif)
+![m0irai, three agents in one terminal](docs/demo.gif)
 
-**Watch the full demo:** [90-second walkthrough](https://github.com/CodeZer0-vibe/m0irai/releases/download/v0.1.0-preview/M0irai.mp4)
+**Watch the full demo:** [walkthrough](https://github.com/CodeZer0-vibe/m0irai/releases/download/v0.1.0-preview/M0irai.mp4)
 
 ---
 
-## Why three, not one
+## The idea
 
-Because one is never enough, and we measured it. In our own coverage test (codename NEON SERPENT), **no single model got past 73% of the target. All three together hit 100%** — for about two dollars. A single-agent tool throws away the 27% that only one of the models would have caught. m0irai keeps all of it.
+The point isn't running three models to look clever. It's that once they share the same terminal and the same context, you can give them real roles:
 
-The point isn't a race. It's a division of labour where each model plays its real strength:
+- Claude Code builds, Codex reviews it, or the other way round. Whoever wrote something doesn't get to sign off on their own work.
+- When two of them disagree on how to do something, they can debate it instead of one quietly overwriting the other.
+- One can go research a current API or a library while the others keep working, and bring the answer back into the same room.
 
-- **Claude** — architecture, edge cases, and the synthesis: it's the one that reads all three streams and merges them into one artifact.
-- **Codex** — the builder. Implementation precision, dependency and API rigour, the actual code.
-- **Gemini** — the researcher. The only one with live web grounding and vision: world research, fact-checking, current-API verification, competitor scans.
+You talk to the room in plain messages, or point at an agent with `@codex` / `@gemini`, or call all of them with `/council`. There's no orchestrator to configure.
 
-Their outputs are combined into one document with every claim attributed to who made it and the evidence behind it. Where two agents disagree on the same question, the disagreement is surfaced as a signal to investigate — never silently voted away.
+## The first thing I built with it
 
-## How it works
+A small neon snake game. On its own, no single agent quite finished it: each one got part of the way and missed something one of the others caught. The three of them together did finish it. That was the moment the shared-room idea stopped being a nice thought and became the reason I kept going, because you keep the part that only one of the three would have gotten.
 
-- **The chat is the whole interface.** No orchestrator to configure. Type `@codex do X`, `@gemini research Y`, `/council Z`, or just a normal sentence and it's routed to the right agent.
-- **It reads the job from your words.** Say "quick mvp" and it runs light; say "ship it, production" and the gates get strict. It shows you the pick and you can override in one word.
-- **The builder can push back.** An agent that thinks the plan is wrong stops and escalates with file-and-line evidence, instead of faithfully building the wrong thing — the failure mode that kills most single-orchestrator setups.
-- **Nothing is "done" because an agent said so.** Work is checked by gates and a cross-family review (whoever built it is off its own review), and every state change is written to an evidence ledger you can read back.
+## How it's built
 
-## Under the hood
+- A **Rust terminal** renders the shared room. It's a fork of xAI's open-source [grok-build](https://github.com/xai-org/grok-build) (Apache-2.0). I kept the terminal and the renderer and cut everything grok-specific. See `LICENSE` and `NOTICE`.
+- A **TypeScript host** runs the agents as real processes and bridges them over the **Agent Client Protocol**, so any ACP-capable CLI can join.
+- A **SQLite evidence ledger** records what happened. Every state change is written down, so you can read back what each agent did and why.
+- **Mechanical gates** (build, typecheck, lint, tests, plus a set of custom checks) have to pass before work counts as done. An agent saying "done" isn't enough.
 
-A Rust terminal room (forked from xAI's open-source grok-build) renders the shared floor; a TypeScript host runs the agents as real processes and bridges them over the Agent Client Protocol, so any ACP-capable CLI can join. Durable but not distributed: one embedded workflow engine, one SQLite evidence ledger, localhost only — crash-recovery and a full audit trail without the cluster tax.
+**Stack:** Rust (terminal), TypeScript (host), Agent Client Protocol, SQLite, Node 22.17+.
 
-**Stack:** Rust (terminal UI) · TypeScript (host) · Agent Client Protocol · Temporal (durable execution) · SQLite evidence ledger · bring-your-own agents
+## Running it
 
-> Work in progress, open source, public release in preparation. The Rust room is a fork of xAI's grok-build (Apache-2.0) — see `LICENSE` and `NOTICE`.
+Right now it's two halves, the Node host and the Rust terminal.
+
+```sh
+npm install     # host dependencies (Node 22.17+)
+npm run build   # build the TypeScript host
+npm test        # run the test suite
+```
+
+The terminal is built on the Rust side with `cargo build`, and it launches the host as a child process. The one thing I'm still finishing for the public release is a single packaged launcher, one command to open the room. Until that lands, this is more "read the code and watch the demo" than one-click run.
 
 ## Status
 
-- **Working:** the room, the chat dispatch surface (`@agent` / `@all` / `/council`), the multi-agent bridging, cross-family review, the council synthesis, the SQLite memory, and the gates.
-- **Next:** the full greenfield pipeline (intent → research → spec → plan → build), the auto mode dials, and the public release build.
+Being honest about it, since this describes more than a weekend of work:
+
+- **Working:** the room, message dispatch (`@agent` / `/council`), bridging the agents over ACP, cross-agent review, the SQLite ledger, and the gates.
+- **In progress:** the Rust terminal extraction (`docs/STATE.md` is the real record of what's actually been proved), and the one-command launcher.
+- **Next:** the full pipeline from intent to research to spec to plan to build, and the public release.
+
+Open source, work in progress. The `docs/` folder is the actual working record, specs and plans and state, not marketing.
