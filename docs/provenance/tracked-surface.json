@@ -1,12 +1,15 @@
 {
   "policy": "work",
-  "count": 2071,
+  "count": 2074,
   "paths": [
     ".dependency-cruiser.cjs",
     ".gitattributes",
     ".gitignore",
     ".nvmrc",
     ".prettierignore",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
     "LICENSE",
     "NOTICE",
     "README.md",
